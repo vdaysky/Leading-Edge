@@ -57,8 +57,11 @@ public class AirController : MonoBehaviour
             _cameraView = _cameraView == CameraView.Back ? CameraView.Front : CameraView.Back;
         }
         
-        // get vertical component of plane speed
-        float verticalSpeedCut = (MaxSpeed - Math.Abs(planeRigidBody.velocity.y)) / MaxSpeed;
+        // project plane vertical vector on world vertical vector
+        Vector3 planeVerticalVector = planeRigidBody.transform.up;
+        Vector3 worldVerticalVector = Vector3.up;
+        Vector3 planeVerticalVectorProjected = Vector3.Project(planeVerticalVector, worldVerticalVector);
+        float verticalSpeedCut = planeVerticalVectorProjected.magnitude;
         
         // compute lift vector (consider lift force to be proportional to vertical speed) 
         Vector3 liftVector = inverseGravityVector * verticalSpeedCut;
@@ -67,7 +70,7 @@ public class AirController : MonoBehaviour
         planeRigidBody.velocity = finalVelocity;
 
         speedText.text = $"Speed: {planeRigidBody.velocity.magnitude}\n" +
-                         $"{planeRigidBody.velocity}";
+                         $"{planeRigidBody.velocity}\nLift: {verticalSpeedCut}";
     }  
 
     //FixedUpdate is called zero, one or multipe times per frame
@@ -128,62 +131,17 @@ public class AirController : MonoBehaviour
 
     private void PlaneSteering()
     {
-        Vector3 localAngularVelocity = planeRigidBody.transform.InverseTransformDirection(planeRigidBody.angularVelocity);
-        
         rotationText.text = $"Rotation:\nUp: {Math.Round(planeRigidBody.rotation.eulerAngles.x, 2)}\n" +
                             $"Left: {Math.Round(planeRigidBody.rotation.eulerAngles.y, 2)}\n" +
                             $"Roll: {Math.Round(planeRigidBody.rotation.eulerAngles.z, 2)}";
         
         float vert = Input.GetAxisRaw("Vertical") * SteeringVSens;
         float hor = Input.GetAxisRaw("Horizontal") * SteeringHSens;
-        
-        var planeTransform = planeRigidBody.transform;
-        var planeRotation = planeTransform.rotation;
+        float roll = Input.GetAxisRaw("Roll") * SteeringHSens;
 
-        Vector3 targetTorque = new Vector3(-vert, hor, 0);
+        Vector3 targetTorque = new Vector3(-vert, hor, roll);
         planeRigidBody.AddRelativeTorque(targetTorque, ForceMode.Force);
-        
-        float planeRoll = planeRotation.eulerAngles.z;
-        float torqueYaw = localAngularVelocity.y;
-        
-        bool rollSign = planeRoll > 180;
-        bool torqueSign = torqueYaw > 0;
-        
-        // if plane is not turning, we have to gradually reduce roll to 0
-        if (Math.Abs(torqueYaw) < TorqueYawStartRollingBack)
-        {  
-            // roll is small enough
-            if (Math.Abs(planeRoll) < 1)
-            {
-                // set the roll on plane explicitly to 0
-                // to avoid it jumping back to 360
-                planeTransform.rotation = Quaternion.Euler(
-                    planeRotation.eulerAngles.x, 
-                    planeRotation.eulerAngles.y, 
-                    0
-                );
-            }
-            else // roll is too big
-            {
-                // find direction in which to roll (clockwise or counter-clockwise)
-                var counterPlaneRoll = planeRoll > 180 ? 360 - planeRoll : -planeRoll;
 
-                // slowly set plane roll close to 0
-                planeRigidBody.AddRelativeTorque(new Vector3(0, 0, counterPlaneRoll), ForceMode.Force);
-            }
-        }
-        else
-        {
-            var absolutePlaneRoll = planeRoll > 180 ? 360 - planeRoll : planeRoll;
-            
-            // if plane roll is not too big in turn direction, or plane is turning in opposite direction to wing tilt
-            if (absolutePlaneRoll < MaxPlaneTurningRoll || rollSign != torqueSign)
-            {
-                // slowly set roll proportional to turn speed
-                planeRigidBody.AddRelativeTorque(new Vector3(0, 0, -torqueYaw * WingRollRate), ForceMode.Impulse);
-            }
-        }
-        
         // get plane torque in local space
         Vector3 torque = planeRigidBody.transform.InverseTransformDirection(planeRigidBody.angularVelocity);
         torqueText.text = "Torque:\n" +
