@@ -58,3 +58,7 @@ Thumbs.db.meta
 
 # VS Code
 *.vscode
+
+.idea
+
+Assets/3rdParty
