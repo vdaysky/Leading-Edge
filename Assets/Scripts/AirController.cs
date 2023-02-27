@@ -40,14 +40,18 @@ public class AirController : MonoBehaviour
         if (_lastFlaresUsage + FlaresCooldownMs >= DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) 
             return;
         
-        var rotationDown = Quaternion.Euler(15, 0, 0);
-        var rotationLeft = Quaternion.Euler(0, 30, 0);
-        var rotationRight = Quaternion.Euler(0, -30, 0);
-        var planePos = planeRigidBody.transform.position;
+        var planeTransform = planeRigidBody.transform;
+        var planePos = planeTransform.position;
+        var right = planeTransform.right;
+        var planeLeftWingPos = planePos + right * 2;
+        var planeRightWingPos = planePos - right * 2;
                 
-        Instantiate(flares, planePos, planeRigidBody.rotation * rotationDown);
-        Instantiate(flares, planePos, planeRigidBody.rotation * rotationLeft);
-        Instantiate(flares, planePos, planeRigidBody.rotation * rotationRight);
+        Instantiate(flares, planePos, planeRigidBody.rotation * Quaternion.Euler(15, 0, 0));
+        Instantiate(flares, planePos, planeRigidBody.rotation * Quaternion.Euler(0, 30, 0));
+        Instantiate(flares, planePos, planeRigidBody.rotation * Quaternion.Euler(0, -30, 0));
+        Instantiate(flares, planeLeftWingPos, planeRigidBody.rotation * Quaternion.Euler(-15, 45, 0));
+        Instantiate(flares, planeRightWingPos, planeRigidBody.rotation * Quaternion.Euler(-15, -45, 0));
+        
         _lastFlaresUsage = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
     }
 
