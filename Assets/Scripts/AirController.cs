@@ -1,7 +1,5 @@
 using System;
-using System.Globalization;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -19,6 +17,8 @@ public class AirController : MonoBehaviour
     
     [SerializeField] private ParticleSystem explosion;
     
+    [SerializeField] private ParticleSystem flares;
+    
     [SerializeField] private TextMeshProUGUI speedText;
     
     [SerializeField] private TextMeshProUGUI torqueText;
@@ -28,11 +28,32 @@ public class AirController : MonoBehaviour
     private CameraView _cameraView = CameraView.Back;
     
     private const float MaxSpeed = 52f;
-    private const float WingRollRate = 8;
     private const float SteeringVSens = 26;
     private const float SteeringHSens = 52;
-    private const float TorqueYawStartRollingBack = 0.05f;
-    private const float MaxPlaneTurningRoll = 35;
+    private const long FlaresCooldownMs = 10000;
+
+    
+    private long _lastFlaresUsage;
+
+    private void TryActivateFlares()
+    {
+        if (_lastFlaresUsage + FlaresCooldownMs >= DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) 
+            return;
+        
+        var planeTransform = planeRigidBody.transform;
+        var planePos = planeTransform.position;
+        var right = planeTransform.right;
+        var planeLeftWingPos = planePos + right * 2;
+        var planeRightWingPos = planePos - right * 2;
+                
+        Instantiate(flares, planePos, planeRigidBody.rotation * Quaternion.Euler(15, 0, 0));
+        Instantiate(flares, planePos, planeRigidBody.rotation * Quaternion.Euler(0, 30, 0));
+        Instantiate(flares, planePos, planeRigidBody.rotation * Quaternion.Euler(0, -30, 0));
+        Instantiate(flares, planeLeftWingPos, planeRigidBody.rotation * Quaternion.Euler(-15, 45, 0));
+        Instantiate(flares, planeRightWingPos, planeRigidBody.rotation * Quaternion.Euler(-15, -45, 0));
+        
+        _lastFlaresUsage = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+    }
 
     private void Update()
     {
@@ -56,7 +77,12 @@ public class AirController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.C)) {
             _cameraView = _cameraView == CameraView.Back ? CameraView.Front : CameraView.Back;
         }
-        
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            TryActivateFlares();
+        }
+
         // project plane vertical vector on world vertical vector
         Vector3 planeVerticalVector = planeRigidBody.transform.up;
         Vector3 worldVerticalVector = Vector3.up;
