@@ -22,9 +22,6 @@ public class RocketBehaviour : MonoBehaviour
     [SerializeField] private GameObject targetMain;
     [SerializeField] private GameObject targetSecondary;
 
-    [Header("Debug Fields")]
-    [SerializeField] private TextMeshProUGUI distanceText;//Delete after all debug ended
-
     //Some consts
     private Vector3 inverseGravityVector = Vector3.up * 10f;
     private Vector3 gravityVector = Vector3.down * 10f;
@@ -43,13 +40,6 @@ public class RocketBehaviour : MonoBehaviour
     void Update()
     {
         RocketVelocity();
-
-        if(targetMain != null)
-        {
-            distanceToPlane = targetMain.transform.position - transform.position;
-
-            distanceText.text = $"Rocket Distance: { distanceToPlane.magnitude }";//Delete after all debug ended
-        }
 
         if(PlayerControlled)
         {
