@@ -120,14 +120,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b35971d32a2acd847ab27120e476f296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerControlled: 0
   rocketRigidbody: {fileID: 6439279369139379237}
-  maxSpeed: 55
-  targetPlane: {fileID: 0}
-  targetFlare: {fileID: 9181007229083733248, guid: 4c645616a0a15a723a08e1815d9e8408, type: 3}
   explosion: {fileID: 119383729859707814, guid: 2b2dab50cba0871a8942b14f7a471778, type: 3}
+  maxSpeed: 55
+  maxTurnAngle: 5
+  minDistanceBoost: 250
+  PlayerControlled: 0
+  SteeringSens: 40
+  targetMain: {fileID: 0}
+  targetSecondary: {fileID: 9181007229083733248, guid: 4c645616a0a15a723a08e1815d9e8408, type: 3}
   distanceText: {fileID: 0}
-  aimModifier: 0.005
 --- !u!54 &6439279369139379237
 Rigidbody:
   m_ObjectHideFlags: 0

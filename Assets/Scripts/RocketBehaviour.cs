@@ -5,27 +5,38 @@ using UnityEngine;
 
 public class RocketBehaviour : MonoBehaviour
 {
-    [SerializeField] private bool PlayerControlled;
+    [Header("Used GameObjects")]
     [SerializeField] private Rigidbody rocketRigidbody;
-    [SerializeField] private float maxSpeed;
-
-    [SerializeField] private GameObject targetPlane;
-    [SerializeField] private GameObject targetFlare;
-
     [SerializeField] private ParticleSystem explosion;
 
+    [Header("Rocket Parameters")]
+    [SerializeField] private float maxSpeed;
+    [SerializeField] private float maxTurnAngle;
+    [SerializeField] private float minDistanceBoost;
+
+    [Header("Player Rocket Parameters")]
+    [SerializeField] private bool PlayerControlled;
+    [SerializeField] private float SteeringSens;
+
+    [Header("Rocket Targets")]
+    [SerializeField] private GameObject targetMain;
+    [SerializeField] private GameObject targetSecondary;
+
+    [Header("Debug Fields")]
     [SerializeField] private TextMeshProUGUI distanceText;//Delete after all debug ended
 
-    [SerializeField, Range(0.0015f, 0.01f)] private float aimModifier;//a.k.a. "craziness level"
-
+    //Some consts
     private Vector3 inverseGravityVector = Vector3.up * 10f;
     private Vector3 gravityVector = Vector3.down * 10f;
-    private const float SteeringSens = 26;
+    private Vector3 distanceToPlane;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        if (PlayerControlled)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
     }
 
     // Update is called once per frame
@@ -33,9 +44,9 @@ public class RocketBehaviour : MonoBehaviour
     {
         RocketVelocity();
 
-        if(targetPlane != null)
+        if(targetMain != null)
         {
-            Vector3 distanceToPlane = targetPlane.transform.position - transform.position;
+            distanceToPlane = targetMain.transform.position - transform.position;
 
             distanceText.text = $"Rocket Distance: { distanceToPlane.magnitude }";//Delete after all debug ended
         }
@@ -80,12 +91,20 @@ public class RocketBehaviour : MonoBehaviour
 
     void RocketTargeing()
     {
-        Vector3 target = targetPlane.transform.position;
+        float distanceBoost = 0f;
+        Vector3 target = targetMain.transform.position - transform.position;
 
+        //boost rotation clamp if too far
+        if (distanceToPlane.magnitude > minDistanceBoost)
+        {
+            distanceBoost = 90 - maxTurnAngle;
+        }
+
+        //check if secondary target is seen
         RaycastHit hit;
         if (Physics.SphereCast(transform.position, 10f, transform.forward, out hit))
         {
-            if (hit.collider.name == targetFlare.name + "(Clone)")
+            if (hit.collider.name == targetSecondary.name + "(Clone)")
             {
                 target = new Vector3(hit.transform.position.x,
                     hit.transform.position.y - 100f,
@@ -93,26 +112,29 @@ public class RocketBehaviour : MonoBehaviour
             }
         }
 
-        Quaternion toRotation = Quaternion.LookRotation(target - transform.position);
-        transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, aimModifier);
+        Quaternion toRotation;
+        //Probably most stupid math to clamp rotation
+        if (Vector3.Angle(transform.forward, target) > maxTurnAngle + distanceBoost)
+        {
+            Vector3 RotationVector = Vector3.Cross(transform.forward, target);
+            toRotation = Quaternion.LookRotation(Quaternion.AngleAxis(maxTurnAngle, RotationVector) * transform.forward);
+        }
+        else
+        {
+            toRotation = Quaternion.LookRotation(target);
+        }
+        //assign new rotation
+        transform.rotation = Quaternion.Lerp(transform.rotation, toRotation, 1.25f * Time.deltaTime);
     }
 
 
     private void RockeSteering()
     {
-        // that's also was shamelessly stolen from AirController
-        float vert = Input.GetAxisRaw("Vertical") * SteeringSens;
-        float hor = Input.GetAxisRaw("Horizontal") * SteeringSens;
-        float roll = Input.GetAxisRaw("Roll") * SteeringSens;
+        float M_x = Input.GetAxis("Mouse X") * SteeringSens * Time.deltaTime;
+        float M_y = Input.GetAxis("Mouse Y") * SteeringSens * Time.deltaTime * -1;
 
-        // get plane torque in local space
-        Vector3 torque = rocketRigidbody.transform.InverseTransformDirection(rocketRigidbody.angularVelocity);
-        torque *= 2;
-
-        Vector3 targetTorque = new Vector3(-vert, hor, roll);
-        rocketRigidbody.AddRelativeTorque(targetTorque - torque, ForceMode.Force);
-
-        
+        transform.Rotate(M_y, M_x, 0f);
+        transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0f);
     }
 
 }
