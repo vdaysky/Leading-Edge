@@ -330,8 +330,6 @@ public class AirController : MonoBehaviour
         Vector3 liftVector = (fullLiftVector * (liftWithoutEngine * wingLiftFactor)) +
                              (fullLiftVector * (EngineLiftFactor * engineFunction));
         
-        // Debug.Log("Lift: " + liftVector + " " + liftVector.magnitude);
-        
         // I have no fucking idea why force has to be divided by two. Seems to work though
         Vector3 finalVelocity = thrustVector * planeRigidBody.mass / 2 + liftVector * planeRigidBody.mass;
         
@@ -370,7 +368,7 @@ public class AirController : MonoBehaviour
         
         // hitting your head hard is not pleasant by any means
         if (planePart == PlanePartType.Cockpit && _plane.Cockpit.Breakage > 0.3) {
-            // Die();
+            Die();
             // TODO:
             // Loose, hook up to something here
             return;
