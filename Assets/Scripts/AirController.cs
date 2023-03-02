@@ -1,6 +1,97 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
+
+internal class PlanePart
+{
+    public Vector3 ParticleOffset;
+    public float Health = 1f;
+    public readonly List<ParticleSystem> BreakageParticles = new();
+    public readonly List<Vector3> RandomOffsets = new();
+
+    public float Breakage {
+        get => Math.Max(0, Math.Min(1, 1 - Health));
+        set => Health = Math.Max(0, Math.Min(1, 1 - value));
+    }
+
+    public PlanePart(Vector3 particleOffset)
+    {
+        ParticleOffset = particleOffset;
+    }
+}
+
+public enum PlanePartType {
+    LeftWing,
+    RightWing,
+    Tail,
+    Engine,
+    Cockpit,
+}
+
+internal class Plane : IEnumerable<PlanePart>
+{
+    private readonly Dictionary<PlanePartType, PlanePart> _parts = new();
+    
+    public PlanePart this[PlanePartType partType] {
+        get => _parts[partType];
+        set => _parts[partType] = value;
+    }
+
+    public void StopSmoke() {
+        foreach (var part in this) {
+            part.BreakageParticles.ForEach(p => p.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear));
+        }
+    }
+
+    public PlanePart LeftWing {
+        get => _parts[PlanePartType.LeftWing];
+        set => _parts[PlanePartType.LeftWing] = value;
+    }
+    
+    public PlanePart RightWing {
+        get => _parts[PlanePartType.RightWing];
+        set => _parts[PlanePartType.RightWing] = value;
+    }
+    
+    public PlanePart Tail {
+        get => _parts[PlanePartType.Tail];
+        set => _parts[PlanePartType.Tail] = value;
+    }
+    
+    public PlanePart Engine {
+        get => _parts[PlanePartType.Engine];
+        set => _parts[PlanePartType.Engine] = value;
+    }
+    
+    public PlanePart Cockpit {
+        get => _parts[PlanePartType.Cockpit];
+        set => _parts[PlanePartType.Cockpit] = value;
+    }
+    
+    public Plane()
+    {
+        _parts.Add(PlanePartType.LeftWing, new(new Vector3(-2, 0, 0)));
+        _parts.Add(PlanePartType.RightWing,  new(new Vector3(2, 0, 0)));
+        _parts.Add(PlanePartType.Tail, new(new Vector3(0, 0, -2)));
+        _parts.Add(PlanePartType.Engine, new(new Vector3(0, 0, 2)));
+        _parts.Add(PlanePartType.Cockpit, new(new Vector3(0, 0, 0)));
+    }
+
+    public IEnumerator<PlanePart> GetEnumerator()
+    {
+        return _parts.Values.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+}
+
 
 
 
@@ -10,30 +101,155 @@ public class AirController : MonoBehaviour
         Back,
         Front
     }
+
+    private enum GameState {
+        Playing,
+        OutOfControl,
+        Destroyed
+    }
     
     [SerializeField] private Rigidbody planeRigidBody;
     
     [SerializeField] private Camera mainCamera;
     
-    [SerializeField] private ParticleSystem explosion;
+    [SerializeField] private ParticleSystem explosionEffect;
     
-    [SerializeField] private ParticleSystem flares;
+    [SerializeField] private ParticleSystem flaresEffect;
+    
+    [SerializeField] private ParticleSystem smokeEffect;
     
     [SerializeField] private TextMeshProUGUI speedText;
     
     [SerializeField] private TextMeshProUGUI torqueText;
     
     [SerializeField] private TextMeshProUGUI rotationText;
+    
+    [SerializeField] private TextMeshProUGUI breakageText;
 
     private CameraView _cameraView = CameraView.Back;
+    private readonly Plane _plane = new();
+    private GameState _state = GameState.Playing;
     
     private const float MaxSpeed = 52f;
     private const float SteeringVSens = 26;
     private const float SteeringHSens = 52;
     private const long FlaresCooldownMs = 10000;
+    private const float EngineLiftFactor = 0.3f;
+    private const float BrokenTailSlide = 1.2f;
 
     
     private long _lastFlaresUsage;
+
+
+    private void Start()
+    {
+        planeRigidBody.maxDepenetrationVelocity = 0.01f;
+    }
+
+    private void AnimateLostControl() {
+        planeRigidBody.AddRelativeTorque(new Vector3(10f, 10f, 60f), ForceMode.Force);
+        mainCamera.transform.position = planeRigidBody.transform.position + new Vector3(0, 30, 0);
+        
+        Quaternion cameraLookDown = Quaternion.Euler(90, 0, 0);
+
+        mainCamera.transform.rotation = Quaternion.Lerp(mainCamera.transform.rotation, cameraLookDown, 0.125f);
+        planeRigidBody.velocity = planeRigidBody.transform.forward * 140;
+    }
+
+    public void LooseControl() {
+        var planeRot = planeRigidBody.transform.rotation;
+        var x = UnityEngine.Random.Range(70f, 110f);
+        var y = planeRot.eulerAngles.y;
+        var z = planeRot.eulerAngles.z;
+        planeRigidBody.transform.rotation = Quaternion.Euler(x, y, z);
+        _state = GameState.OutOfControl;
+    }
+
+    public void Die() {
+        
+        if (_state == GameState.Destroyed) {
+            return;
+        }
+
+        Instantiate(explosionEffect, planeRigidBody.transform.position, Quaternion.identity);
+        _state = GameState.Destroyed;
+        
+        // hide the plane
+        GetComponent<MeshRenderer>().enabled = false;
+        
+        // remove particles
+        _plane.StopSmoke();
+        
+        // TODO: debris
+    }
+
+    private void DisplayPlanePartBreakage(PlanePart part)
+    {
+        var breakage = part.Breakage;
+
+        int smokeSources;
+
+        if (breakage > 0.7) {
+            smokeSources = 3;
+        } else if (breakage > 0.3) {
+            smokeSources = 2;
+        } else if (breakage > 0.1) {
+            smokeSources = 1;
+        } else {
+            smokeSources = 0;
+        }
+        
+        var planeTransform = planeRigidBody.transform;
+        if (part.BreakageParticles.Count < smokeSources)
+        {
+            Vector3 planeOffset = part.ParticleOffset.x * planeTransform.right +
+                                  part.ParticleOffset.y * planeTransform.up +
+                                  part.ParticleOffset.z * planeTransform.forward;
+            
+            Vector3 randomOffset = new Vector3(
+                UnityEngine.Random.Range(-0.3f, 0.3f),
+                UnityEngine.Random.Range(-0.3f, 0.3f),
+                UnityEngine.Random.Range(-0.3f, 0.3f)
+            );
+            
+            Quaternion backwardLook = Quaternion.LookRotation(planeRigidBody.transform.forward * -1);
+                
+            var smokeItem = Instantiate(smokeEffect, planeRigidBody.transform.position + planeOffset, backwardLook);
+            
+            part.BreakageParticles.Add(smokeItem);
+            part.RandomOffsets.Add(randomOffset);
+        }
+        
+        // move particles with plane
+        foreach (var particle in part.BreakageParticles)
+        {
+            Vector3 randomOffset = part.RandomOffsets[part.BreakageParticles.IndexOf(particle)];
+            
+            Vector3 planeOffset = (part.ParticleOffset.x + randomOffset.x) * planeTransform.right +
+                                  (part.ParticleOffset.y + randomOffset.y) * planeTransform.up +
+                                  (part.ParticleOffset.z + randomOffset.z) * planeTransform.forward;
+            
+            particle.transform.position = planeRigidBody.transform.position + planeOffset;
+        }
+    }
+
+    private void OnCollisionStay(Collision collisionInfo) {
+        foreach (Transform planeChildTransform in planeRigidBody.gameObject.transform) {
+            var planeChild = planeChildTransform.gameObject;
+            
+            var hitbox = planeChild.GetComponent<PlanePartHitbox>();
+
+            if (hitbox == null) {
+                continue;
+            }
+            
+            var colliderOfPlane = planeChild.GetComponent<Collider>();
+            
+            if (collisionInfo.contacts.Any(contact => colliderOfPlane.bounds.Contains(contact.point))) {
+                HandlePlanePartCollision(hitbox.type, collisionInfo);
+            }
+        }
+    }
 
     private void TryActivateFlares()
     {
@@ -46,33 +262,22 @@ public class AirController : MonoBehaviour
         var planeLeftWingPos = planePos + right * 2;
         var planeRightWingPos = planePos - right * 2;
                 
-        Instantiate(flares, planePos, planeRigidBody.rotation * Quaternion.Euler(15, 0, 0));
-        Instantiate(flares, planePos, planeRigidBody.rotation * Quaternion.Euler(0, 30, 0));
-        Instantiate(flares, planePos, planeRigidBody.rotation * Quaternion.Euler(0, -30, 0));
-        Instantiate(flares, planeLeftWingPos, planeRigidBody.rotation * Quaternion.Euler(-15, 45, 0));
-        Instantiate(flares, planeRightWingPos, planeRigidBody.rotation * Quaternion.Euler(-15, -45, 0));
+        Instantiate(flaresEffect, planePos, planeRigidBody.rotation * Quaternion.Euler(15, 0, 0));
+        Instantiate(flaresEffect, planePos, planeRigidBody.rotation * Quaternion.Euler(0, 30, 0));
+        Instantiate(flaresEffect, planePos, planeRigidBody.rotation * Quaternion.Euler(0, -30, 0));
+        Instantiate(flaresEffect, planeLeftWingPos, planeRigidBody.rotation * Quaternion.Euler(-15, 45, 0));
+        Instantiate(flaresEffect, planeRightWingPos, planeRigidBody.rotation * Quaternion.Euler(-15, -45, 0));
         
         _lastFlaresUsage = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
     }
 
     private void Update()
     {
-        Vector3 thrustVector;
-        var gravityVector = Vector3.down * 10;
-        
-        // lets say that when perfectly flat plane can counter gravity
-        var inverseGravityVector = Vector3.up * 10; 
+        if (_state == GameState.OutOfControl) {
+            AnimateLostControl();
+            return;
+        }
 
-        //Thrust change mostly for debug
-        if (Input.GetButton("Jump"))
-        {
-            thrustVector = planeRigidBody.transform.forward * 10f;
-        }
-        else
-        {
-            thrustVector = planeRigidBody.transform.forward * MaxSpeed;
-        }
-        
         // change camera view
         if (Input.GetKeyDown(KeyCode.C)) {
             _cameraView = _cameraView == CameraView.Back ? CameraView.Front : CameraView.Back;
@@ -82,49 +287,102 @@ public class AirController : MonoBehaviour
         {
             TryActivateFlares();
         }
+        
+        DisplayPlanePartBreakage(_plane[PlanePartType.LeftWing]);
+        DisplayPlanePartBreakage(_plane[PlanePartType.RightWing]);
+        DisplayPlanePartBreakage(_plane[PlanePartType.Tail]);
+        DisplayPlanePartBreakage(_plane[PlanePartType.Tail]);
+    }
 
+    private void UpdateThrust()
+    {
+        Vector3 thrustVector;
+        
+        //Thrust change mostly for debug
+        if (Input.GetButton("Jump"))
+        {
+            thrustVector = planeRigidBody.transform.forward * 10f;
+        }
+        else
+        {
+            thrustVector = planeRigidBody.transform.forward * (MaxSpeed);
+        }
+
+        breakageText.text = $"Left wing HP: {_plane[PlanePartType.LeftWing].Health}\n" +
+                            $"Right wing HP: {_plane[PlanePartType.RightWing].Health}\n" +
+                            $"Tail HP: {_plane[PlanePartType.Tail].Health}\n" +
+                            $"Engine HP: {_plane[PlanePartType.Engine].Health}\n" +
+                            $"Cockpit HP: {_plane[PlanePartType.Cockpit].Health}\n";
+        
         // project plane vertical vector on world vertical vector
         Vector3 planeVerticalVector = planeRigidBody.transform.up;
         Vector3 worldVerticalVector = Vector3.up;
         Vector3 planeVerticalVectorProjected = Vector3.Project(planeVerticalVector, worldVerticalVector);
         float verticalSpeedCut = planeVerticalVectorProjected.magnitude;
         
-        // compute lift vector (consider lift force to be proportional to vertical speed) 
-        Vector3 liftVector = inverseGravityVector * verticalSpeedCut;
+        float engineFunction = _plane.Engine.Health;
+        float liftWithoutEngine = 1 - EngineLiftFactor;
+        float wingLiftFactor = _plane.LeftWing.Health * _plane.RightWing.Health;
         
-        Vector3 finalVelocity = thrustVector + liftVector + gravityVector;
-        planeRigidBody.velocity = finalVelocity;
+        Vector3 fullLiftVector = -Physics.gravity * verticalSpeedCut;
+        
+        // compute lift vector depending on engine and wing health
+        Vector3 liftVector = (fullLiftVector * (liftWithoutEngine * wingLiftFactor)) +
+                             (fullLiftVector * (EngineLiftFactor * engineFunction));
+        
+        // I have no fucking idea why force has to be divided by two. Seems to work though
+        Vector3 finalVelocity = thrustVector * planeRigidBody.mass / 2 + liftVector * planeRigidBody.mass;
+        
+        planeRigidBody.AddForce(finalVelocity, ForceMode.Force);
 
         speedText.text = $"Speed: {planeRigidBody.velocity.magnitude}\n" +
-                         $"{planeRigidBody.velocity}\nLift: {verticalSpeedCut}";
-    }  
+                         $"{planeRigidBody.velocity}\n" +
+                         $"Lift: {verticalSpeedCut}";
+    }
 
     //FixedUpdate is called zero, one or multipe times per frame
     private void FixedUpdate()
     {
+        if (_state != GameState.Playing) {
+            return;
+        }
         PlaneSteering();
+        UpdateThrust();
         CameraFollow();
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void HandlePlanePartCollision(PlanePartType planePart, Collision collision)
     {
         var other = collision.gameObject;
         
+        if (_state != GameState.Playing) 
+            return;
+        
         if (other.CompareTag("WantedTarget"))
         {
+            Die();
             // TODO:
             // Win, hook up to something here
+            return;
         }
-        else
-        {
+        
+        // hitting your head hard is not pleasant by any means
+        if (planePart == PlanePartType.Cockpit && _plane.Cockpit.Breakage > 0.3) {
+            Die();
             // TODO:
-            // Lost, hook up to something here
+            // Loose, hook up to something here
+            return;
         }
-
-        Instantiate(explosion, planeRigidBody.transform.position, Quaternion.identity);
-        Destroy(planeRigidBody.gameObject, 0);
         
+        // damage plane part
+        _plane[planePart].Breakage += 0.01f;
         
+        // too broken to stay alive
+        if (_plane.Sum(part => part.Breakage) >= 2) {
+            Die();
+            // TODO:
+            // Loose, hook up to something here
+        }
     }
 
     private void CameraFollow()
@@ -164,8 +422,24 @@ public class AirController : MonoBehaviour
         float vert = Input.GetAxisRaw("Vertical") * SteeringVSens;
         float hor = Input.GetAxisRaw("Horizontal") * SteeringHSens;
         float roll = Input.GetAxisRaw("Roll") * SteeringHSens;
+        
+        
 
         Vector3 targetTorque = new Vector3(-vert, hor, roll);
+        
+        // plane starts spinning horizontally a bit when tail is broken
+        targetTorque += new Vector3(0, _plane.Tail.Breakage * vert * BrokenTailSlide, 0);
+
+        float zTorque = (_plane.LeftWing.Health - _plane.RightWing.Health) * 10;
+        float wingBreakageRoll = Math.Abs(_plane.LeftWing.Health - _plane.RightWing.Health);
+        
+        var signedRoll = planeRigidBody.transform.rotation.eulerAngles.z;
+        var planeRoll = signedRoll > 180 ? 360 - signedRoll : signedRoll;
+        
+        if (planeRoll < wingBreakageRoll * 30) {
+            targetTorque.z += zTorque;
+        }
+        
         planeRigidBody.AddRelativeTorque(targetTorque, ForceMode.Force);
 
         // get plane torque in local space
