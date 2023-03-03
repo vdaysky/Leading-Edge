@@ -830,9 +830,13 @@ MonoBehaviour:
   mainCamera: {fileID: 963194227}
   explosion: {fileID: 119383729859707814, guid: 2b2dab50cba0871a8942b14f7a471778, type: 3}
   flares: {fileID: 119383729859707814, guid: 4c645616a0a15a723a08e1815d9e8408, type: 3}
+  explosionEffect: {fileID: 119383729859707814, guid: 2b2dab50cba0871a8942b14f7a471778, type: 3}
+  flaresEffect: {fileID: 119383729859707814, guid: 4c645616a0a15a723a08e1815d9e8408, type: 3}
+  smokeEffect: {fileID: 144944840119195957, guid: 5d7b5a8937eaf20ada79835f07520e0e, type: 3}
   speedText: {fileID: 382985785}
   torqueText: {fileID: 828824747}
   rotationText: {fileID: 1728585120}
+  breakageText: {fileID: 1126352197}
 --- !u!65 &722720429
 BoxCollider:
   m_ObjectHideFlags: 0
