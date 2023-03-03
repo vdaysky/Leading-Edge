@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6439279369139379232}
   - component: {fileID: 6439279369139379235}
   - component: {fileID: 6439279369139379234}
+  - component: {fileID: 722720454}
   - component: {fileID: 6439279369139379237}
   m_Layer: 0
   m_Name: MainRocket
@@ -122,14 +123,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rocketRigidbody: {fileID: 6439279369139379237}
   explosion: {fileID: 119383729859707814, guid: 2b2dab50cba0871a8942b14f7a471778, type: 3}
+  aiTargeting: 1
   maxSpeed: 55
   maxTurnAngle: 5
   minDistanceBoost: 250
-  PlayerControlled: 0
-  SteeringSens: 40
   targetMain: {fileID: 0}
   targetSecondary: {fileID: 9181007229083733248, guid: 4c645616a0a15a723a08e1815d9e8408, type: 3}
-  distanceText: {fileID: 0}
+--- !u!114 &722720454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6439279369139379236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0503fa657a96224ea95dc73779a46ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerControlled: 0
+  steeringSens: 40
 --- !u!54 &6439279369139379237
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -138,9 +151,9 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6439279369139379236}
   serializedVersion: 4
-  m_Mass: 5
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_Mass: 30
+  m_Drag: 0.5
+  m_AngularDrag: 0.9
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
