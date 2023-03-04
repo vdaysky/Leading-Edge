@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RocketBehaviour : MonoBehaviour
+public class RocketAiControll : MonoBehaviour
 {
     [Header("Used GameObjects")]
     [SerializeField] private Rigidbody rocketRigidbody;
@@ -18,12 +18,32 @@ public class RocketBehaviour : MonoBehaviour
     [SerializeField] private GameObject targetMain;
     [SerializeField] private GameObject targetSecondary;
 
+    //flare offset
+    private float aimOffsetVertical = 0f;
+    private float aimOffsetHorizontal = 0f;
+    private bool createNewOffset = true;
+
     // Update is called once per frame
     void Update()
     {
         if(aiTargeting)
         {
-            RocketTargeting();
+            Vector3 target = targetMain.transform.position;
+            if (targetMain.GetComponent<AirController>().HasTriggeredFlares())
+            {
+                if(createNewOffset)
+                {
+                    aimOffsetVertical = Random.Range(-100f, 100);
+                    aimOffsetHorizontal = Random.Range(-100f, 100);
+                    createNewOffset = false;
+                }
+                target += transform.up * aimOffsetVertical + transform.right * aimOffsetHorizontal;
+            }
+            else
+            {
+                createNewOffset = true;
+            } 
+            RotationToTarget(target);
         }
     }
 
@@ -66,26 +86,15 @@ public class RocketBehaviour : MonoBehaviour
         rocketRigidbody.AddForce(finalVelocity, ForceMode.Force);
     }
 
-    void RocketTargeting()
+    void RotationToTarget(Vector3 targetPosition)
     {
         float distanceBoost = 0f;
-        Vector3 targetDirection = targetMain.transform.position - transform.position;
+        Vector3 targetDirection = targetPosition - transform.position;
 
         //boost rotation clamp if too far
         if (targetDirection.magnitude > minDistanceBoost)
         {
             distanceBoost = 90 - maxTurnAngle;
-        }
-
-        //check if secondary target is seen
-        if (Physics.SphereCast(transform.position, 10f, transform.forward, out RaycastHit hit))
-        {
-            if (hit.collider.tag == targetSecondary.tag)
-            {
-                targetDirection = new Vector3(hit.transform.position.x,
-                    hit.transform.position.y - 100f,
-                    hit.transform.position.z);
-            }
         }
 
         Quaternion toRotation;
@@ -100,6 +109,6 @@ public class RocketBehaviour : MonoBehaviour
             toRotation = Quaternion.LookRotation(targetDirection);
         }
         //assign new rotation
-        transform.rotation = Quaternion.Lerp(transform.rotation, toRotation, 1.25f * Time.deltaTime);
+        transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, 0.1f);
     }
 }
