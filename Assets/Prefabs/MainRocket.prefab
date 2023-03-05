@@ -123,7 +123,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rocketRigidbody: {fileID: 6439279369139379237}
   explosion: {fileID: 119383729859707814, guid: 2b2dab50cba0871a8942b14f7a471778, type: 3}
-  aiTargeting: 1
   maxSpeed: 55
   maxTurnAngle: 5
   minDistanceBoost: 250
@@ -136,12 +135,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6439279369139379236}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c0503fa657a96224ea95dc73779a46ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerControlled: 0
+  rocketRigidbody: {fileID: 6439279369139379237}
+  explosion: {fileID: 119383729859707814, guid: 2b2dab50cba0871a8942b14f7a471778, type: 3}
+  maxSpeed: 55
   steeringSens: 40
 --- !u!54 &6439279369139379237
 Rigidbody:

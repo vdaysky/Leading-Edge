@@ -4,28 +4,34 @@ using UnityEngine;
 
 public class RocketPlayerControll : MonoBehaviour
 {
-    [Header("Player Rocket Parameters")]
-    [SerializeField] private bool playerControlled;
+    [Header("Used GameObjects")]
+    [SerializeField] private Rigidbody rocketRigidbody;
+    [SerializeField] private ParticleSystem explosion;
+
+    [Header("Rocket Parameters")]
+    [SerializeField] private float maxSpeed;
     [SerializeField] private float steeringSens;
+
+    private RocketBehaviour rocketMovement;
 
     // Start is called before the first frame update
     void Start()
     {
-        if (playerControlled)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-        }
+        Cursor.lockState = CursorLockMode.Locked;
+        rocketMovement = new RocketBehaviour(rocketRigidbody, maxSpeed);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(playerControlled)
-        {
-            RocketSteering();
-        }
+        RocketSteering();
     }
 
+    //FixedUpdate is called zero, one or multipe times per frame
+    private void FixedUpdate()
+    {
+        rocketMovement.RocketVelocity();
+    }
 
     private void RocketSteering()
     {
