@@ -15,8 +15,7 @@ public class RocketBehaviour : MonoBehaviour
     [SerializeField] private float minDistanceBoost;
     [SerializeField] private bool triggerLockOnSound;
 
-    private float _minLockOnFrequency = 0.1f;
-    private float _lockOnCooldown = 0f;
+    private float _lockOnCooldown;
 
     public void RotationToTarget(Vector3 targetPosition)
     {
@@ -36,7 +35,6 @@ public class RocketBehaviour : MonoBehaviour
                 _lockOnCooldown = Time.time + targetDirection.magnitude / 50;
                 lockOnSound.Play();
             }
-            
         }
 
         Quaternion toRotation;
