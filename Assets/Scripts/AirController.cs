@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
+using util;
 
 internal class PlanePart
 {
@@ -112,6 +113,8 @@ public class AirController : MonoBehaviour
     
     [SerializeField] private Camera mainCamera;
     
+    [SerializeField] private GameObject rocketPrefab;
+    
     [SerializeField] private ParticleSystem explosionEffect;
     
     [SerializeField] private ParticleSystem flaresEffect;
@@ -138,12 +141,14 @@ public class AirController : MonoBehaviour
     private const float BrokenTailSlide = 1.2f;
 
     
-    private long _lastFlaresUsage;
-
+    private int _rocketsLeftOnBoard = 5;
+    private GameObject _rocket;
+    private readonly Recharge _planeRecharge = new();
 
     private void Start()
     {
         planeRigidBody.maxDepenetrationVelocity = 0.01f;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void AnimateLostControl() {
@@ -253,8 +258,9 @@ public class AirController : MonoBehaviour
 
     private void TryActivateFlares()
     {
-        if (_lastFlaresUsage + FlaresCooldownMs >= DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) 
+        if (!_planeRecharge.TryAbility("Flares", FlaresCooldownMs)) {
             return;
+        }
         
         var planeTransform = planeRigidBody.transform;
         var planePos = planeTransform.position;
@@ -267,8 +273,38 @@ public class AirController : MonoBehaviour
         Instantiate(flaresEffect, planePos, planeRigidBody.rotation * Quaternion.Euler(0, -30, 0));
         Instantiate(flaresEffect, planeLeftWingPos, planeRigidBody.rotation * Quaternion.Euler(-15, 45, 0));
         Instantiate(flaresEffect, planeRightWingPos, planeRigidBody.rotation * Quaternion.Euler(-15, -45, 0));
+    }
+
+    private void TryLaunchRocket() {
         
-        _lastFlaresUsage = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+        // prevent launching new rocket while old one is still flying
+        if (_rocket != null && !_rocket.IsDestroyed()) {
+            return;
+        }
+
+        _rocket = null;
+        
+        if (_rocketsLeftOnBoard <= 0) {
+            return;
+        }
+
+        _rocketsLeftOnBoard -= 1;
+        
+        var planeTransform = planeRigidBody.transform;
+        
+        var spawnPos = planeTransform.position + planeTransform.up * -3 + planeTransform.forward * 10;
+        _rocket = Instantiate(rocketPrefab, spawnPos, planeTransform.rotation);
+        
+        var rocketBase = _rocket.GetComponent<RocketBehaviour>();
+        var playerControl = _rocket.GetComponent<RocketPlayerControl>();
+        var aiControl = _rocket.GetComponent<RocketAiControl>();
+        
+        rocketBase.SetMaxSpeed(70);
+        rocketBase.SetSpeed(planeRigidBody.velocity.magnitude);
+        playerControl.SetSteeringSens(120);
+        
+        playerControl.enabled = true;
+        aiControl.enabled = false;
     }
 
     private void Update()
@@ -287,11 +323,16 @@ public class AirController : MonoBehaviour
         {
             TryActivateFlares();
         }
-        
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            TryLaunchRocket();
+        }
+
         DisplayPlanePartBreakage(_plane[PlanePartType.LeftWing]);
         DisplayPlanePartBreakage(_plane[PlanePartType.RightWing]);
         DisplayPlanePartBreakage(_plane[PlanePartType.Tail]);
-        DisplayPlanePartBreakage(_plane[PlanePartType.Tail]);
+        DisplayPlanePartBreakage(_plane[PlanePartType.Engine]);
     }
 
     private void UpdateThrust()
@@ -452,6 +493,6 @@ public class AirController : MonoBehaviour
 
     public bool HasTriggeredFlares()
     {
-        return _lastFlaresUsage + FlaresCooldownMs >= DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+        return !_planeRecharge.IsRecharged("Flares");
     }
 }
