@@ -52,6 +52,14 @@ public class RocketBehaviour : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, 0.1f);
     }
 
+    public void SetSpeed(float speed) {
+        rocketRigidbody.velocity = transform.forward * speed;
+    }
+
+    public void SetMaxSpeed(float newMaxSpeed) {
+        maxSpeed = newMaxSpeed;   
+    }
+
     //FixedUpdate is called zero, one or multipe times per frame
     private void FixedUpdate()
     {
