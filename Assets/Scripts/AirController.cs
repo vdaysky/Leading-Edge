@@ -449,4 +449,9 @@ public class AirController : MonoBehaviour
                           $"Left: {Math.Round(torque.y, 2)}\n" +
                           $"Roll: {Math.Round(torque.z, 2)}";
     }
+
+    public bool HasTriggeredFlares()
+    {
+        return _lastFlaresUsage + FlaresCooldownMs >= DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+    }
 }

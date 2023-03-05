@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.69994956, g: 0.71386784, b: 0.7997424, a: 1}
+  m_IndirectSpecularColor: {r: 0.6999538, g: 0.713871, b: 0.7997463, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -189,7 +189,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2aa07420002f4a64a23c2d97d364705e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 2
 --- !u!1 &180396484
 GameObject:
   m_ObjectHideFlags: 0
@@ -361,7 +360,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2aa07420002f4a64a23c2d97d364705e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 4
 --- !u!1 &382985783
 GameObject:
   m_ObjectHideFlags: 0
@@ -830,6 +828,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   planeRigidBody: {fileID: 722720422}
   mainCamera: {fileID: 963194227}
+  explosion: {fileID: 119383729859707814, guid: 2b2dab50cba0871a8942b14f7a471778, type: 3}
+  flares: {fileID: 119383729859707814, guid: 4c645616a0a15a723a08e1815d9e8408, type: 3}
   explosionEffect: {fileID: 119383729859707814, guid: 2b2dab50cba0871a8942b14f7a471778, type: 3}
   flaresEffect: {fileID: 119383729859707814, guid: 4c645616a0a15a723a08e1815d9e8408, type: 3}
   smokeEffect: {fileID: 144944840119195957, guid: 5d7b5a8937eaf20ada79835f07520e0e, type: 3}
@@ -885,6 +885,71 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -5495902117074765545, guid: 625f7e059ee476a4493069e52ef047ac, type: 3}
+--- !u!1001 &722720452
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6439279369139379230, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
+      propertyPath: m_RootOrder
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439279369139379230, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439279369139379230, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 361.11624
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439279369139379230, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -120
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439279369139379230, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439279369139379230, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439279369139379230, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439279369139379230, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439279369139379230, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439279369139379230, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439279369139379230, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439279369139379234, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
+      propertyPath: targetMain
+      value: 
+      objectReference: {fileID: 722720420}
+    - target: {fileID: 6439279369139379236, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
+      propertyPath: m_Name
+      value: MainRocket
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6f60be659e9d26e40a79d4a3531372dc, type: 3}
 --- !u!1 &782699153
 GameObject:
   m_ObjectHideFlags: 0
@@ -951,7 +1016,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2aa07420002f4a64a23c2d97d364705e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 1
 --- !u!1 &828824745
 GameObject:
   m_ObjectHideFlags: 0
@@ -1245,7 +1309,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2aa07420002f4a64a23c2d97d364705e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 0
 --- !u!1 &1126352195
 GameObject:
   m_ObjectHideFlags: 0
@@ -1696,4 +1759,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2aa07420002f4a64a23c2d97d364705e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 3
