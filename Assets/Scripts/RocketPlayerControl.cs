@@ -12,6 +12,21 @@ public class RocketPlayerControl : MonoBehaviour
     private void Start()
     {
         _rocketLogic = transform.GetComponent<RocketBehaviour>();
+        
+        var cam = new GameObject("RocketCamera").AddComponent<Camera>();
+
+        var camTransform = cam.transform;
+        
+        camTransform.SetParent(transform);
+        camTransform.localPosition = new Vector3(0, 0, 0);
+        camTransform.localRotation = Quaternion.identity;
+        camTransform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        
+        cam.rect = new Rect(0.75f, 0, 0.25f, 0.25f);
+    }
+
+    public void SetSteeringSens(float sens) {
+        steeringSens = sens;
     }
 
     // Update is called once per frame
