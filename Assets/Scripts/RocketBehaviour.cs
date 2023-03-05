@@ -7,11 +7,15 @@ public class RocketBehaviour : MonoBehaviour
     [Header("Used GameObjects")]
     [SerializeField] private Rigidbody rocketRigidbody;
     [SerializeField] private ParticleSystem explosion;
+    [SerializeField] private AudioSource lockOnSound;
 
     [Header("Rocket Parameters")]
     [SerializeField] private float maxSpeed;
     [SerializeField] private float maxTurnAngle;
     [SerializeField] private float minDistanceBoost;
+
+    private float _minLockOnFrequency = 0.1f;
+    private float _lockOnCooldown = 0f;
 
     public void RotationToTarget(Vector3 targetPosition)
     {
@@ -22,6 +26,16 @@ public class RocketBehaviour : MonoBehaviour
         if (targetDirection.magnitude > minDistanceBoost)
         {
             distanceBoost = 90 - maxTurnAngle;
+        }
+
+        if(targetDirection.magnitude < 25f)
+        {
+            if(_lockOnCooldown < Time.time)
+            {
+                _lockOnCooldown = Time.time + targetDirection.magnitude / 50;
+                lockOnSound.Play();
+            }
+            
         }
 
         Quaternion toRotation;
