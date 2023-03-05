@@ -2,18 +2,56 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RocketBehaviour
+public class RocketBehaviour : MonoBehaviour
 {
-    private Rigidbody rocketRigidbody;
-    private float maxSpeed;
+    [Header("Used GameObjects")]
+    [SerializeField] private Rigidbody rocketRigidbody;
+    [SerializeField] private ParticleSystem explosion;
 
-    public RocketBehaviour(Rigidbody rocket, float speed)
+    [Header("Rocket Parameters")]
+    [SerializeField] private float maxSpeed;
+    [SerializeField] private float maxTurnAngle;
+    [SerializeField] private float minDistanceBoost;
+
+    public void RotationToTarget(Vector3 targetPosition)
     {
-        rocketRigidbody = rocket;
-        maxSpeed = speed;
+        float distanceBoost = 0f;
+        Vector3 targetDirection = targetPosition - transform.position;
+
+        //boost rotation clamp if too far
+        if (targetDirection.magnitude > minDistanceBoost)
+        {
+            distanceBoost = 90 - maxTurnAngle;
+        }
+
+        Quaternion toRotation;
+        //Probably most stupid math to clamp rotation
+        if (Vector3.Angle(transform.forward, targetDirection) > maxTurnAngle + distanceBoost)
+        {
+            Vector3 RotationVector = Vector3.Cross(transform.forward, targetDirection);
+            toRotation = Quaternion.LookRotation(Quaternion.AngleAxis(maxTurnAngle, RotationVector) * transform.forward);
+        }
+        else
+        {
+            toRotation = Quaternion.LookRotation(targetDirection);
+        }
+        //assign new rotation
+        transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, 0.1f);
     }
 
-    public void RocketVelocity()
+    //FixedUpdate is called zero, one or multipe times per frame
+    private void FixedUpdate()
+    {
+        RocketVelocity();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Instantiate(explosion, rocketRigidbody.transform.position, Quaternion.identity);
+        Destroy(this.gameObject);
+    }
+
+    private void RocketVelocity()
     {
         // forces affecting the rocket shamelessly stolen from AirController
         Vector3 thrustVector = rocketRigidbody.transform.forward * maxSpeed;

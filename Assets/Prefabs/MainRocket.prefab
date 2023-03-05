@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6439279369139379233}
   - component: {fileID: 6439279369139379232}
   - component: {fileID: 6439279369139379235}
+  - component: {fileID: 816359754}
   - component: {fileID: 6439279369139379234}
   - component: {fileID: 722720454}
   - component: {fileID: 6439279369139379237}
@@ -109,7 +110,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &6439279369139379234
+--- !u!114 &816359754
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -118,7 +119,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6439279369139379236}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b35971d32a2acd847ab27120e476f296, type: 3}
+  m_Script: {fileID: 11500000, guid: 21b03a184e01e9c45a2e87927273e275, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   rocketRigidbody: {fileID: 6439279369139379237}
@@ -126,6 +127,18 @@ MonoBehaviour:
   maxSpeed: 55
   maxTurnAngle: 5
   minDistanceBoost: 250
+--- !u!114 &6439279369139379234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6439279369139379236}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b35971d32a2acd847ab27120e476f296, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   targetMain: {fileID: 0}
   targetSecondary: {fileID: 9181007229083733248, guid: 4c645616a0a15a723a08e1815d9e8408, type: 3}
 --- !u!114 &722720454
@@ -135,15 +148,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6439279369139379236}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c0503fa657a96224ea95dc73779a46ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rocketRigidbody: {fileID: 6439279369139379237}
-  explosion: {fileID: 119383729859707814, guid: 2b2dab50cba0871a8942b14f7a471778, type: 3}
-  maxSpeed: 55
-  steeringSens: 40
+  steeringSens: 150
 --- !u!54 &6439279369139379237
 Rigidbody:
   m_ObjectHideFlags: 0
