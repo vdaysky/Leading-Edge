@@ -2,11 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RocketPlayerControll : MonoBehaviour
+public class RocketPlayerControl : MonoBehaviour
 {
     [Header("Rocket Parameters")]
     [SerializeField] private float steeringSens;
 
+    private RocketBehaviour _rocketLogic;
+
+    private void Start()
+    {
+        _rocketLogic = transform.GetComponent<RocketBehaviour>();
+    }
 
     // Update is called once per frame
     void Update()
@@ -15,6 +21,6 @@ public class RocketPlayerControll : MonoBehaviour
         float mY = Input.GetAxis("Mouse Y") * steeringSens * Time.deltaTime;
 
         Vector3 target = transform.position + transform.forward * 10 + transform.right * mX + transform.up * mY;
-        transform.GetComponent<RocketBehaviour>().RotationToTarget(target);
+        _rocketLogic.RotationToTarget(target);
     }
 }

@@ -28,8 +28,8 @@ public class RocketBehaviour : MonoBehaviour
         //Probably most stupid math to clamp rotation
         if (Vector3.Angle(transform.forward, targetDirection) > maxTurnAngle + distanceBoost)
         {
-            Vector3 RotationVector = Vector3.Cross(transform.forward, targetDirection);
-            toRotation = Quaternion.LookRotation(Quaternion.AngleAxis(maxTurnAngle, RotationVector) * transform.forward);
+            Vector3 rotationVector = Vector3.Cross(transform.forward, targetDirection);
+            toRotation = Quaternion.LookRotation(Quaternion.AngleAxis(maxTurnAngle, rotationVector) * transform.forward);
         }
         else
         {
@@ -62,18 +62,10 @@ public class RocketBehaviour : MonoBehaviour
         Vector3 planeVerticalVectorProjected = Vector3.Project(planeVerticalVector, worldVerticalVector);
         float verticalSpeedCut = planeVerticalVectorProjected.magnitude;
 
-        float engineFunction = 1;
-        float liftWithoutEngine = 1 - 0.3f;
-        float wingLiftFactor = 1 * 1;
-
         Vector3 fullLiftVector = -Physics.gravity * verticalSpeedCut;
 
-        // compute lift vector depending on engine and wing health
-        Vector3 liftVector = (fullLiftVector * (liftWithoutEngine * wingLiftFactor)) +
-                             (fullLiftVector * (0.3f * engineFunction));
-
         // I have no fucking idea why force has to be divided by two. Seems to work though
-        Vector3 finalVelocity = thrustVector * rocketRigidbody.mass / 2 + liftVector * rocketRigidbody.mass;
+        Vector3 finalVelocity = thrustVector * rocketRigidbody.mass / 2 + fullLiftVector * rocketRigidbody.mass;
 
         rocketRigidbody.AddForce(finalVelocity, ForceMode.Force);
     }
