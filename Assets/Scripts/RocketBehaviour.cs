@@ -13,6 +13,7 @@ public class RocketBehaviour : MonoBehaviour
     [SerializeField] private float maxSpeed;
     [SerializeField] private float maxTurnAngle;
     [SerializeField] private float minDistanceBoost;
+    [SerializeField] private bool triggerLockOnSound;
 
     private float _minLockOnFrequency = 0.1f;
     private float _lockOnCooldown = 0f;
@@ -28,7 +29,7 @@ public class RocketBehaviour : MonoBehaviour
             distanceBoost = 90 - maxTurnAngle;
         }
 
-        if(targetDirection.magnitude < 25f)
+        if(targetDirection.magnitude < 25f && triggerLockOnSound)
         {
             if(_lockOnCooldown < Time.time)
             {
