@@ -20,6 +20,10 @@ public class RocketAiControl : MonoBehaviour
         _planeController = targetMain.GetComponent<AirController>();
         _rocketLogic = transform.GetComponent<RocketBehaviour>();
     }
+    
+    public void SetTarget(GameObject target) {
+        targetMain = target;
+    }
 
     // Update is called once per frame
     void Update()
