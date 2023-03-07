@@ -43,8 +43,10 @@ public class AirDefenceController : MonoBehaviour
         }
         
         var detectionProbability = distanceDetectionFactor * heightDetectionFactor;
-
+        
+        Debug.Log("Attempt, probability: " + detectionProbability);
         if (Random.Range(0f, 1f) < detectionProbability) {
+            Debug.Log("launch");
             DetectTarget();
         }
     }
@@ -55,6 +57,9 @@ public class AirDefenceController : MonoBehaviour
         var rocketControl = rocket.GetComponent<RocketAiControl>();
         var rocketLogic = rocket.GetComponent<RocketBehaviour>();
         var humanControl = rocket.GetComponent<RocketPlayerControl>();
+        var tagHolder = rocket.GetComponent<TagHolder>();
+        
+        tagHolder.RemoveTag(SharedTag.MainRocket);
         
         rocketLogic.SetSpeed(70);
         rocketLogic.SetMaxSpeed(90);

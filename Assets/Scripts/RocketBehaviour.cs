@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Jobs;
 using UnityEngine;
 
 public class RocketBehaviour : MonoBehaviour
@@ -16,6 +17,10 @@ public class RocketBehaviour : MonoBehaviour
     [SerializeField] private bool triggerLockOnSound;
 
     private float _lockOnCooldown;
+    
+    public event RocketDestroyed OnRocketDestroyed;
+    
+    public delegate void RocketDestroyed(GameObject collidedWith, Vector3 position);
 
     public void RotationToTarget(Vector3 targetPosition)
     {
@@ -70,6 +75,7 @@ public class RocketBehaviour : MonoBehaviour
     {
         Instantiate(explosion, rocketRigidbody.transform.position, Quaternion.identity);
         Destroy(this.gameObject);
+        OnRocketDestroyed?.Invoke(collision.gameObject, collision.transform.position);
     }
 
     private void RocketVelocity()

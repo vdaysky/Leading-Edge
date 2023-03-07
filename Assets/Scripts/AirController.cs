@@ -237,23 +237,65 @@ public class AirController : MonoBehaviour
             particle.transform.position = planeRigidBody.transform.position + planeOffset;
         }
     }
-
-    private void OnCollisionStay(Collision collisionInfo) {
+    
+    private IEnumerable<PlanePartHitbox> GetHitPart(Collision collisionInfo) {
         foreach (Transform planeChildTransform in planeRigidBody.gameObject.transform) {
             var planeChild = planeChildTransform.gameObject;
             
             var hitbox = planeChild.GetComponent<PlanePartHitbox>();
-
+            
             if (hitbox == null) {
                 continue;
             }
             
             var colliderOfPlane = planeChild.GetComponent<Collider>();
             
-            if (collisionInfo.contacts.Any(contact => colliderOfPlane.bounds.Contains(contact.point))) {
-                HandlePlanePartCollision(hitbox.type, collisionInfo);
+            if (collisionInfo.contacts.Any(contact => colliderOfPlane.bounds.Contains(contact.point)))
+            {
+                yield return hitbox;
             }
         }
+    }
+
+    private void OnCollisionStay(Collision collisionInfo) {
+        foreach (var hitbox in GetHitPart(collisionInfo)) {
+            HandlePlanePartCollision(hitbox.type, collisionInfo);
+        }
+    }
+
+    private void OnCollisionEnter(Collision collisionInfo)
+    {
+        var tags = collisionInfo.gameObject.GetComponent<TagHolder>();
+
+        if (tags.HasTag(SharedTag.MainObjective)) {
+            Debug.Log("Win");
+            return;
+        }
+
+        if (_state == GameState.OutOfControl) {
+            Die();
+            return;
+        }
+        
+        // here we only handle rocket damage
+        if (!tags.HasTag(SharedTag.Rocket)) {
+            return;
+        }
+
+        bool isMain = tags.HasTag(SharedTag.MainRocket);
+        
+        foreach (var hitbox in GetHitPart(collisionInfo)) {
+            HandlePlanePartRocketHit(hitbox.type, isMain);
+        }
+    }
+
+    private void HandlePlanePartRocketHit(PlanePartType type, bool isMain) {
+        Debug.Log("Handle hit: " + type + " isMain: " + isMain);
+        if (isMain) {
+            LooseControl();
+            return;
+        }
+        _plane[type].Breakage += 0.4f;
     }
 
     private void TryActivateFlares()
@@ -295,9 +337,17 @@ public class AirController : MonoBehaviour
         var spawnPos = planeTransform.position + planeTransform.up * -3 + planeTransform.forward * 10;
         _rocket = Instantiate(rocketPrefab, spawnPos, planeTransform.rotation);
         
+        // set tag
+        _rocket.gameObject.tag = "PlayerRocket";
+        
         var rocketBase = _rocket.GetComponent<RocketBehaviour>();
         var playerControl = _rocket.GetComponent<RocketPlayerControl>();
         var aiControl = _rocket.GetComponent<RocketAiControl>();
+        
+        // rocket hit something
+        rocketBase.OnRocketDestroyed += (collidedWith, _) => { 
+            collidedWith.GetComponent<TagHolder>().HasTag(SharedTag.AirDefence).Then(()=>Destroy(collidedWith));
+        };
         
         rocketBase.SetMaxSpeed(70);
         rocketBase.SetSpeed(planeRigidBody.velocity.magnitude);
