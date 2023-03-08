@@ -239,20 +239,40 @@ public class AirController : MonoBehaviour
     }
     
     private IEnumerable<PlanePartHitbox> GetHitPart(Collision collisionInfo) {
-        foreach (Transform planeChildTransform in planeRigidBody.gameObject.transform) {
-            var planeChild = planeChildTransform.gameObject;
-            
+        for(int i = 0; i < planeRigidBody.gameObject.transform.childCount; i++)
+        {
+            var planeChild = planeRigidBody.gameObject.transform.GetChild(i);
+
             var hitbox = planeChild.GetComponent<PlanePartHitbox>();
-            
-            if (hitbox == null) {
+
+            if (hitbox == null)
+            {
                 continue;
             }
-            
+
             var colliderOfPlane = planeChild.GetComponent<Collider>();
-            
-            if (collisionInfo.contacts.Any(contact => colliderOfPlane.bounds.Contains(contact.point)))
+
+            if(!planeChild.gameObject.active)
             {
-                yield return hitbox;
+                continue;
+            }
+
+            foreach (ContactPoint CP in collisionInfo.contacts)
+            {
+
+                Vector3 inBoundVector = colliderOfPlane.bounds.center - CP.point;
+
+                if (Mathf.Abs(inBoundVector.x) < colliderOfPlane.bounds.size.x)
+                {
+                    if (Mathf.Abs(inBoundVector.y) < colliderOfPlane.bounds.size.y)
+                    {
+                        if (Mathf.Abs(inBoundVector.z) < colliderOfPlane.bounds.size.z)
+                        {
+                            yield return hitbox;
+                            break;
+                        }
+                    }
+                }
             }
         }
     }
@@ -283,7 +303,7 @@ public class AirController : MonoBehaviour
         }
 
         bool isMain = tags.HasTag(SharedTag.MainRocket);
-        
+
         foreach (var hitbox in GetHitPart(collisionInfo)) {
             HandlePlanePartRocketHit(hitbox.type, isMain);
         }
