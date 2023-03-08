@@ -239,11 +239,11 @@ public class AirController : MonoBehaviour
     }
     
     private IEnumerable<PlanePartHitbox> GetHitPart(Collision collisionInfo) {
-        for(int i = 0; i < planeRigidBody.gameObject.transform.childCount; i++)
-        {
-            var planeChild = planeRigidBody.gameObject.transform.GetChild(i);
-
-            var hitbox = planeChild.GetComponent<PlanePartHitbox>();
+        foreach(Transform planeTransform in planeRigidBody.gameObject.transform)
+        {   
+            var planeChild = planeTransform.gameObject;
+            
+            var hitbox = planeChild.gameObject.GetComponent<PlanePartHitbox>();
 
             if (hitbox == null)
             {
@@ -252,27 +252,22 @@ public class AirController : MonoBehaviour
 
             var colliderOfPlane = planeChild.GetComponent<Collider>();
 
-            if(!planeChild.gameObject.active)
-            {
+            if (!planeChild.gameObject.activeSelf) {
                 continue;
             }
 
-            foreach (ContactPoint CP in collisionInfo.contacts)
+            foreach (var contactPoint in collisionInfo.contacts)
             {
-
-                Vector3 inBoundVector = colliderOfPlane.bounds.center - CP.point;
-
-                if (Mathf.Abs(inBoundVector.x) < colliderOfPlane.bounds.size.x)
-                {
-                    if (Mathf.Abs(inBoundVector.y) < colliderOfPlane.bounds.size.y)
-                    {
-                        if (Mathf.Abs(inBoundVector.z) < colliderOfPlane.bounds.size.z)
-                        {
-                            yield return hitbox;
-                            break;
-                        }
-                    }
-                }
+                var bounds = colliderOfPlane.bounds;
+                var distanceToHit = bounds.center - contactPoint.point;
+                var boundingBoxSize = bounds.size;
+                
+                if (!(Mathf.Abs(distanceToHit.x) < boundingBoxSize.x)) continue;
+                if (!(Mathf.Abs(distanceToHit.y) < boundingBoxSize.y)) continue;
+                if (!(Mathf.Abs(distanceToHit.z) < boundingBoxSize.z)) continue;
+                
+                yield return hitbox;
+                break;
             }
         }
     }
@@ -310,7 +305,7 @@ public class AirController : MonoBehaviour
     }
 
     private void HandlePlanePartRocketHit(PlanePartType type, bool isMain) {
-        Debug.Log("Handle hit: " + type + " isMain: " + isMain);
+
         if (isMain) {
             LooseControl();
             return;
