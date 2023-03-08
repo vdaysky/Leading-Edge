@@ -5,6 +5,7 @@ using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 using util;
 
 internal class PlanePart
@@ -123,11 +124,26 @@ public class AirController : MonoBehaviour
     
     [SerializeField] private TextMeshProUGUI speedText;
     
-    [SerializeField] private TextMeshProUGUI torqueText;
+    [SerializeField] private TextMeshProUGUI altitudeText;
     
-    [SerializeField] private TextMeshProUGUI rotationText;
+    [SerializeField] private Texture2D rocketIconTexture;
     
-    [SerializeField] private TextMeshProUGUI breakageText;
+    [SerializeField] private Canvas canvas;
+    
+    [SerializeField] private GameObject crosshair;
+    
+    [SerializeField] private RawImage leftWingIcon;
+    
+    [SerializeField] private RawImage rightWingIcon;
+    
+    [SerializeField] private RawImage tailIcon;
+    
+    [SerializeField] private RawImage engineIcon;
+    
+    [SerializeField] private RawImage cockpitIcon;
+    
+    [SerializeField] private RawImage radarFrame;
+    
 
     private CameraView _cameraView = CameraView.Back;
     private readonly Plane _plane = new();
@@ -141,14 +157,45 @@ public class AirController : MonoBehaviour
     private const float BrokenTailSlide = 1.2f;
 
     
+    
     private int _rocketsLeftOnBoard = 5;
     private GameObject _rocket;
     private readonly Recharge _planeRecharge = new();
+    private readonly List<GameObject> _rocketIcons = new();
 
     private void Start()
     {
+        InitUi();
+        
         planeRigidBody.maxDepenetrationVelocity = 0.01f;
         Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    private void InitUi() {
+        // create rocket icons
+        for (int i = 0; i < _rocketsLeftOnBoard; i++) {
+            GameObject imgObject = new GameObject("RocketIcon#" + i);
+            
+            RectTransform trans = imgObject.AddComponent<RectTransform>();
+            trans.transform.SetParent(canvas.transform); // setting parent
+            
+            trans.localScale = Vector3.one;
+            // get screen width
+            float screenWidth = Screen.width;
+            // get screen height
+            float screenHeight = Screen.height;
+            trans.anchorMin = new Vector2(0.8f, 0);
+            trans.anchorMax = new Vector2(0.8f, 0);
+            
+            trans.anchoredPosition = new Vector2(i * -18 * 2, 96); // setting position, will be on center
+            trans.sizeDelta = new Vector2(18, 96); // custom size
+
+            RawImage image = imgObject.AddComponent<RawImage>();
+            Texture2D tex = rocketIconTexture;
+            image.texture = tex;
+            imgObject.transform.SetParent(canvas.transform);
+            _rocketIcons.Add(imgObject);
+        }
     }
 
     private void AnimateLostControl() {
@@ -186,6 +233,32 @@ public class AirController : MonoBehaviour
         _plane.StopSmoke();
         
         // TODO: debris
+    }
+
+    private void UpdateUi()
+    {
+        const int pixelsBetweenBars = 150;
+        
+        var pitch = planeRigidBody.transform.rotation.eulerAngles.x;
+        if (pitch > 180) {
+            pitch -= 360;
+        }
+        
+        crosshair.transform.localPosition = new Vector3(0, -pitch * pixelsBetweenBars / 90, 0);
+        crosshair.transform.localRotation = Quaternion.Euler(0, 0, planeRigidBody.transform.rotation.eulerAngles.z);
+        
+        speedText.text = planeRigidBody.velocity.magnitude.ToString("F0"); // units per second
+        altitudeText.text = planeRigidBody.transform.position.y.ToString("F0");
+        
+        // update plane part icons
+        leftWingIcon.color = new Color32((byte)(255 * _plane.LeftWing.Health), (byte)(255 * _plane.LeftWing.Health), (byte)(255 * _plane.LeftWing.Health), 255); 
+        rightWingIcon.color = new Color32((byte)(255 * _plane.RightWing.Health), (byte)(255 * _plane.RightWing.Health), (byte)(255 * _plane.RightWing.Health), 255);
+        tailIcon.color = new Color32((byte)(255 * _plane.Tail.Health), (byte)(255 * _plane.Tail.Health), (byte)(255 * _plane.Tail.Health), 255);
+        engineIcon.color = new Color32((byte)(255 * _plane.Engine.Health), (byte)(255 * _plane.Engine.Health), (byte)(255 * _plane.Engine.Health), 255);
+        cockpitIcon.color = new Color32((byte)(255 * _plane.Cockpit.Health), (byte)(255 * _plane.Cockpit.Health), (byte)(255 * _plane.Cockpit.Health), 255);
+        
+        // set radar frame rotation to yaw
+        radarFrame.transform.localRotation = Quaternion.Euler(0, 0, planeRigidBody.transform.rotation.eulerAngles.y);
     }
 
     private void DisplayPlanePartBreakage(PlanePart part)
@@ -346,6 +419,7 @@ public class AirController : MonoBehaviour
         }
 
         _rocketsLeftOnBoard -= 1;
+        _rocketIcons[_rocketsLeftOnBoard].SetActive(false);                
         
         var planeTransform = planeRigidBody.transform;
         
@@ -374,6 +448,9 @@ public class AirController : MonoBehaviour
 
     private void Update()
     {
+
+        UpdateUi();
+        
         if (_state == GameState.OutOfControl) {
             AnimateLostControl();
             return;
@@ -414,12 +491,6 @@ public class AirController : MonoBehaviour
             thrustVector = planeRigidBody.transform.forward * (MaxSpeed);
         }
 
-        breakageText.text = $"Left wing HP: {_plane[PlanePartType.LeftWing].Health}\n" +
-                            $"Right wing HP: {_plane[PlanePartType.RightWing].Health}\n" +
-                            $"Tail HP: {_plane[PlanePartType.Tail].Health}\n" +
-                            $"Engine HP: {_plane[PlanePartType.Engine].Health}\n" +
-                            $"Cockpit HP: {_plane[PlanePartType.Cockpit].Health}\n";
-        
         // project plane vertical vector on world vertical vector
         Vector3 planeVerticalVector = planeRigidBody.transform.up;
         Vector3 worldVerticalVector = Vector3.up;
@@ -440,10 +511,6 @@ public class AirController : MonoBehaviour
         Vector3 finalVelocity = thrustVector * planeRigidBody.mass / 2 + liftVector * planeRigidBody.mass;
         
         planeRigidBody.AddForce(finalVelocity, ForceMode.Force);
-
-        speedText.text = $"Speed: {planeRigidBody.velocity.magnitude}\n" +
-                         $"{planeRigidBody.velocity}\n" +
-                         $"Lift: {verticalSpeedCut}";
     }
 
     //FixedUpdate is called zero, one or multipe times per frame
@@ -521,10 +588,6 @@ public class AirController : MonoBehaviour
 
     private void PlaneSteering()
     {
-        rotationText.text = $"Rotation:\nUp: {Math.Round(planeRigidBody.rotation.eulerAngles.x, 2)}\n" +
-                            $"Left: {Math.Round(planeRigidBody.rotation.eulerAngles.y, 2)}\n" +
-                            $"Roll: {Math.Round(planeRigidBody.rotation.eulerAngles.z, 2)}";
-        
         float vert = Input.GetAxisRaw("Vertical") * SteeringVSens;
         float hor = Input.GetAxisRaw("Horizontal") * SteeringHSens;
         float roll = Input.GetAxisRaw("Roll") * SteeringHSens;
@@ -547,13 +610,6 @@ public class AirController : MonoBehaviour
         }
         
         planeRigidBody.AddRelativeTorque(targetTorque, ForceMode.Force);
-
-        // get plane torque in local space
-        Vector3 torque = planeRigidBody.transform.InverseTransformDirection(planeRigidBody.angularVelocity);
-        torqueText.text = "Torque:\n" +
-                          $"Up: {Math.Round(torque.x, 2)}\n" +
-                          $"Left: {Math.Round(torque.y, 2)}\n" +
-                          $"Roll: {Math.Round(torque.z, 2)}";
     }
 
     public bool HasTriggeredFlares()
