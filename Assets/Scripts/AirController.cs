@@ -142,6 +142,8 @@ public class AirController : MonoBehaviour
     
     [SerializeField] private RawImage cockpitIcon;
     
+    [SerializeField] private RawImage radarFrame;
+    
 
     private CameraView _cameraView = CameraView.Back;
     private readonly Plane _plane = new();
@@ -252,6 +254,9 @@ public class AirController : MonoBehaviour
         tailIcon.color = new Color32((byte)(255 * _plane.Tail.Health), (byte)(255 * _plane.Tail.Health), (byte)(255 * _plane.Tail.Health), 255);
         engineIcon.color = new Color32((byte)(255 * _plane.Engine.Health), (byte)(255 * _plane.Engine.Health), (byte)(255 * _plane.Engine.Health), 255);
         cockpitIcon.color = new Color32((byte)(255 * _plane.Cockpit.Health), (byte)(255 * _plane.Cockpit.Health), (byte)(255 * _plane.Cockpit.Health), 255);
+        
+        // set radar frame rotation to yaw
+        radarFrame.transform.localRotation = Quaternion.Euler(0, 0, planeRigidBody.transform.rotation.eulerAngles.y);
     }
 
     private void DisplayPlanePartBreakage(PlanePart part)

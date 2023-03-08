@@ -1331,6 +1331,7 @@ MonoBehaviour:
   tailIcon: {fileID: 1933888343}
   engineIcon: {fileID: 1191520495}
   cockpitIcon: {fileID: 1766460607}
+  radarFrame: {fileID: 119337646}
 --- !u!65 &722720429
 BoxCollider:
   m_ObjectHideFlags: 0
