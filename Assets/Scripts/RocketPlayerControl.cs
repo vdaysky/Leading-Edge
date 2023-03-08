@@ -23,6 +23,7 @@ public class RocketPlayerControl : MonoBehaviour
         camTransform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
         
         cam.rect = new Rect(0.75f, 0, 0.25f, 0.25f);
+        cam.GetComponent<AudioListener>().enabled = false;
     }
 
     public void SetSteeringSens(float sens) {

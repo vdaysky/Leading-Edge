@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 722720454}
   - component: {fileID: 6439279369139379237}
   - component: {fileID: 128780107}
+  - component: {fileID: 4570809300120690689}
   m_Layer: 0
   m_Name: Rocket
   m_TagString: Untagged
@@ -38,7 +39,7 @@ Transform:
   m_Children:
   - {fileID: 6439279369709282675}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!65 &6439279369139379233
 BoxCollider:
@@ -129,6 +130,7 @@ MonoBehaviour:
   maxSpeed: 55
   maxTurnAngle: 5
   minDistanceBoost: 250
+  triggerLockOnSound: 0
 --- !u!114 &6439279369139379234
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278,6 +280,20 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &4570809300120690689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6439279369139379236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47d432b592c3423988fe8e2171629f02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  initialTags:
+  - Rocket
 --- !u!1 &6439279369709282674
 GameObject:
   m_ObjectHideFlags: 0
