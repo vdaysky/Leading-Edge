@@ -1841,6 +1841,14 @@ PrefabInstance:
       propertyPath: initialTags.Array.size
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1622591094910032379, guid: b8c95b381c527292186af3d0b8b243aa, type: 3}
+      propertyPath: initialTags.Array.data[0]
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622591094910032379, guid: b8c95b381c527292186af3d0b8b243aa, type: 3}
+      propertyPath: initialTags.Array.data[1]
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 6558020100701406109, guid: b8c95b381c527292186af3d0b8b243aa, type: 3}
       propertyPath: target
       value: 

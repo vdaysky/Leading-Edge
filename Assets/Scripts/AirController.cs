@@ -305,20 +305,35 @@ public class AirController : MonoBehaviour
     }
     
     private IEnumerable<PlanePartHitbox> GetHitPart(Collision collisionInfo) {
-        foreach (Transform planeChildTransform in planeRigidBody.gameObject.transform) {
-            var planeChild = planeChildTransform.gameObject;
+        foreach(Transform planeTransform in planeRigidBody.gameObject.transform)
+        {   
+            var planeChild = planeTransform.gameObject;
             
-            var hitbox = planeChild.GetComponent<PlanePartHitbox>();
-            
-            if (hitbox == null) {
+            var hitbox = planeChild.gameObject.GetComponent<PlanePartHitbox>();
+
+            if (hitbox == null)
+            {
                 continue;
             }
-            
+
             var colliderOfPlane = planeChild.GetComponent<Collider>();
-            
-            if (collisionInfo.contacts.Any(contact => colliderOfPlane.bounds.Contains(contact.point)))
+
+            if (!planeChild.gameObject.activeSelf) {
+                continue;
+            }
+
+            foreach (var contactPoint in collisionInfo.contacts)
             {
+                var bounds = colliderOfPlane.bounds;
+                var distanceToHit = bounds.center - contactPoint.point;
+                var boundingBoxSize = bounds.size;
+                
+                if (!(Mathf.Abs(distanceToHit.x) < boundingBoxSize.x)) continue;
+                if (!(Mathf.Abs(distanceToHit.y) < boundingBoxSize.y)) continue;
+                if (!(Mathf.Abs(distanceToHit.z) < boundingBoxSize.z)) continue;
+                
                 yield return hitbox;
+                break;
             }
         }
     }
@@ -349,14 +364,14 @@ public class AirController : MonoBehaviour
         }
 
         bool isMain = tags.HasTag(SharedTag.MainRocket);
-        
+
         foreach (var hitbox in GetHitPart(collisionInfo)) {
             HandlePlanePartRocketHit(hitbox.type, isMain);
         }
     }
 
     private void HandlePlanePartRocketHit(PlanePartType type, bool isMain) {
-        Debug.Log("Handle hit: " + type + " isMain: " + isMain);
+
         if (isMain) {
             LooseControl();
             return;
