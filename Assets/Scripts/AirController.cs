@@ -184,9 +184,11 @@ public class AirController : MonoBehaviour
             float screenWidth = Screen.width;
             // get screen height
             float screenHeight = Screen.height;
+            trans.anchorMin = new Vector2(0.8f, 0);
+            trans.anchorMax = new Vector2(0.8f, 0);
             
-            trans.anchoredPosition = new Vector2(screenWidth/2 - i * 37 * 2, -screenHeight + 192 * 2); // setting position, will be on center
-            trans.sizeDelta = new Vector2(37, 192); // custom size
+            trans.anchoredPosition = new Vector2(i * -18 * 2, 96); // setting position, will be on center
+            trans.sizeDelta = new Vector2(18, 96); // custom size
 
             RawImage image = imgObject.AddComponent<RawImage>();
             Texture2D tex = rocketIconTexture;
