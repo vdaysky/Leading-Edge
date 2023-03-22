@@ -144,6 +144,10 @@ public class AirController : MonoBehaviour
     
     [SerializeField] private RawImage radarFrame;
     
+    [SerializeField] private Canvas inclineCanvas;
+    
+    [SerializeField] private Texture2D inclineTexture;
+    
 
     private CameraView _cameraView = CameraView.Back;
     private readonly Plane _plane = new();
@@ -162,6 +166,7 @@ public class AirController : MonoBehaviour
     private GameObject _rocket;
     private readonly Recharge _planeRecharge = new();
     private readonly List<GameObject> _rocketIcons = new();
+    private readonly List<GameObject> _inclineItems = new();
 
     private void Start()
     {
@@ -180,10 +185,7 @@ public class AirController : MonoBehaviour
             trans.transform.SetParent(canvas.transform); // setting parent
             
             trans.localScale = Vector3.one;
-            // get screen width
-            float screenWidth = Screen.width;
-            // get screen height
-            float screenHeight = Screen.height;
+
             trans.anchorMin = new Vector2(0.8f, 0);
             trans.anchorMax = new Vector2(0.8f, 0);
             
@@ -195,6 +197,46 @@ public class AirController : MonoBehaviour
             image.texture = tex;
             imgObject.transform.SetParent(canvas.transform);
             _rocketIcons.Add(imgObject);
+        }
+        
+        // add incline bars for each 10 degrees
+        for (int i = -18; i < 18; i++)
+        {
+            GameObject imgObject = new GameObject("Incline#" + i);
+            
+            RectTransform trans = imgObject.AddComponent<RectTransform>();
+            trans.transform.SetParent(inclineCanvas.transform);
+            
+            trans.localScale = Vector3.one;
+
+            trans.anchorMin = new Vector2(0.5f, 0.5f);
+            trans.anchorMax = new Vector2(0.5f, 0.5f);
+            
+            trans.sizeDelta = new Vector2(512, 64);
+            
+            trans.anchoredPosition = new Vector2(0, i * 100);
+
+            RawImage image = imgObject.AddComponent<RawImage>();
+            Texture2D tex = inclineTexture;
+            image.texture = tex;
+            imgObject.transform.SetParent(inclineCanvas.transform);
+            
+            // add text inside
+            GameObject textObject = new GameObject("InclineText#" + i);
+            RectTransform textTrans = textObject.AddComponent<RectTransform>();
+            TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
+            text.text = (i * 10).ToString();
+            text.fontSize = 18;
+            textTrans.transform.SetParent(imgObject.transform);
+            
+            // set text position
+            textTrans.localScale = Vector3.one;
+            textTrans.sizeDelta = new Vector2(100, 40);
+            textTrans.anchorMin = new Vector2(0.5f, 0);
+            textTrans.anchorMax = new Vector2(0.5f, 0);
+            textTrans.anchoredPosition = new Vector2(0, 0);
+            
+            _inclineItems.Add(imgObject);
         }
     }
 
@@ -237,14 +279,12 @@ public class AirController : MonoBehaviour
 
     private void UpdateUi()
     {
-        const int pixelsBetweenBars = 150;
         
         var pitch = planeRigidBody.transform.rotation.eulerAngles.x;
         if (pitch > 180) {
             pitch -= 360;
         }
         
-        crosshair.transform.localPosition = new Vector3(0, -pitch * pixelsBetweenBars / 90, 0);
         crosshair.transform.localRotation = Quaternion.Euler(0, 0, planeRigidBody.transform.rotation.eulerAngles.z);
         
         speedText.text = planeRigidBody.velocity.magnitude.ToString("F0"); // units per second
@@ -259,6 +299,18 @@ public class AirController : MonoBehaviour
         
         // set radar frame rotation to yaw
         radarFrame.transform.localRotation = Quaternion.Euler(0, 0, planeRigidBody.transform.rotation.eulerAngles.y);
+        
+        // move inclines up and down with pitch, accounting for item index
+        for (int i = - _inclineItems.Count / 2; i < _inclineItems.Count / 2; i++)
+        {
+            var item = _inclineItems[_inclineItems.Count / 2 + i];
+            // Yes, I am fucking going to call it 36 times a tick. So what?
+            var itemTrans = item.GetComponent<RectTransform>();
+            itemTrans.anchoredPosition = new Vector2(0, (i + pitch / 10) * 100);
+        }
+        
+        // rotate incline canvas on screen
+        inclineCanvas.transform.localRotation = Quaternion.Euler(0, 0, planeRigidBody.transform.rotation.eulerAngles.z);
     }
 
     private void DisplayPlanePartBreakage(PlanePart part)
