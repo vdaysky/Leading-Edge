@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using util;
+using UnityEngine.SceneManagement;
 
 internal class PlanePart
 {
@@ -156,7 +157,7 @@ public class AirController : MonoBehaviour
     private CameraView _cameraView = CameraView.Back;
     private readonly Plane _plane = new();
     private GameState _state = GameState.Playing;
-    private Dictionary<RaycastHit, GameObject> _objetcsAndIcons = new Dictionary<RaycastHit, GameObject>();
+    private Dictionary<GameObject, GameObject> _objetcsAndIcons = new Dictionary<GameObject, GameObject>();//private Dictionary<RaycastHit, GameObject> _objetcsAndIcons = new Dictionary<RaycastHit, GameObject>();
 
     private const float MaxSpeed = 52f;
     private const float SteeringVSens = 26;
@@ -271,16 +272,13 @@ public class AirController : MonoBehaviour
         // set plane rotation to yaw
         planeIcon.transform.localRotation = Quaternion.Euler(0, 0, -planeRigidBody.transform.rotation.eulerAngles.y);
 
-        //get objects around the plane
-        RaycastHit[] detectedObjects = Physics.SphereCastAll(new Vector3(planeRigidBody.position.x, 0f, planeRigidBody.position.z), RadarScanRadius, Vector3.up);
-
-        //create new icons
-        foreach(RaycastHit hitObject in detectedObjects)
+        //create all radar objects
+        foreach(GameObject radarObj in SceneManager.GetActiveScene().GetRootGameObjects())
         {
-            if(!_objetcsAndIcons.ContainsKey(hitObject))
+            if (!_objetcsAndIcons.ContainsKey(radarObj))
             {
-                TagHolder objectTag = hitObject.transform.gameObject.GetComponent<TagHolder>();
-                if(objectTag != null)
+                TagHolder objectTag = radarObj.transform.gameObject.GetComponent<TagHolder>();
+                if (objectTag != null)
                 {
                     if (objectTag.HasTag(SharedTag.MainRocket))
                     {
@@ -294,7 +292,7 @@ public class AirController : MonoBehaviour
                         imgTransform.sizeDelta = new Vector2(30f, 30f);
                         imgTransform.localScale = new Vector3(1f, 1f, 1f);
 
-                        _objetcsAndIcons.Add(hitObject, imgObject);
+                        _objetcsAndIcons.Add(radarObj, imgObject);
                     }
                     else if (objectTag.HasTag(SharedTag.PlayerRocket))
                     {
@@ -308,7 +306,7 @@ public class AirController : MonoBehaviour
                         imgTransform.sizeDelta = new Vector2(30f, 30f);
                         imgTransform.localScale = new Vector3(1f, 1f, 1f);
 
-                        _objetcsAndIcons.Add(hitObject, imgObject);
+                        _objetcsAndIcons.Add(radarObj, imgObject);
                     }
                     else if (objectTag.HasTag(SharedTag.Rocket))
                     {
@@ -322,21 +320,23 @@ public class AirController : MonoBehaviour
                         imgTransform.sizeDelta = new Vector2(30f, 30f);
                         imgTransform.localScale = new Vector3(1f, 1f, 1f);
 
-                        _objetcsAndIcons.Add(hitObject, imgObject);
+                        _objetcsAndIcons.Add(radarObj, imgObject);
                     }
                     else if (objectTag.HasTag(SharedTag.MainObjective))
                     {
                         GameObject imgObject = new GameObject("MainTargetIcon");
 
-                        imgObject.transform.SetParent(radar.transform);
+                        imgObject.transform.SetParent(canvas.transform);
                         RawImage imgTarget = imgObject.AddComponent<RawImage>();
                         imgTarget.texture = enemyIconTexture;
                         imgTarget.color = new Color32(232, 206, 36, 255);
                         RectTransform imgTransform = imgObject.transform.GetComponent<RectTransform>();
-                        imgTransform.sizeDelta = new Vector2(30f, 30f);
-                        imgTransform.localScale = new Vector3(3f, 3f, 3f);
+                        imgTransform.sizeDelta = new Vector2(20f, 20f);
+                        imgTransform.localScale = new Vector3(2f, 2f, 2f);
+                        imgTransform.anchorMin = new Vector2(0f, 0f);
+                        imgTransform.anchorMax = new Vector2(0f, 0f);
 
-                        _objetcsAndIcons.Add(hitObject, imgObject);
+                        _objetcsAndIcons.Add(radarObj, imgObject);
                     }
                     else if (objectTag.HasTag(SharedTag.AirDefence))
                     {
@@ -350,13 +350,13 @@ public class AirController : MonoBehaviour
                         imgTransform.sizeDelta = new Vector2(50f, 50f);
                         imgTransform.localScale = new Vector3(1f, 1f, 1f);
 
-                        _objetcsAndIcons.Add(hitObject, imgObject);
+                        _objetcsAndIcons.Add(radarObj, imgObject);
 
                         GameObject imgRadius = new GameObject("AirDefenceRadiusIcon");
                         imgRadius.transform.SetParent(imgObject.transform);
                         image = imgRadius.AddComponent<RawImage>();
                         image.texture = enemyIconTexture;
-                        image.color = new Color32(247, 145, 43, 130);
+                        image.color = new Color32(247, 145, 43, 100);
                         imgTransform = imgRadius.transform.GetComponent<RectTransform>();
                         imgTransform.sizeDelta = new Vector2(1f, 1f);
                         imgTransform.localScale = new Vector3(2f, 2f, 2f);
@@ -365,34 +365,47 @@ public class AirController : MonoBehaviour
             }
         }
 
-        //delete icons of not detected objects
+        //delete icons of non-existent objects
         for (int i = _objetcsAndIcons.Count - 1; i >= 0; i--)
         {
-            KeyValuePair<RaycastHit, GameObject> entry = _objetcsAndIcons.ElementAt(i);
-            if (!detectedObjects.Contains<RaycastHit>(entry.Key))
+            KeyValuePair<GameObject, GameObject> entry = _objetcsAndIcons.ElementAt(i);
+            if (entry.Key == null)
             {
                 Destroy(entry.Value);
                 _objetcsAndIcons.Remove(entry.Key);
             }
         }
 
-        //update position
-        foreach (KeyValuePair<RaycastHit, GameObject> entry in _objetcsAndIcons)
+        foreach (KeyValuePair<GameObject, GameObject> entry in _objetcsAndIcons)
         {
-            Vector3 offset = new Vector3(-(planeRigidBody.position.x - entry.Key.transform.position.x),
+            if(entry.Key.GetComponent<TagHolder>().HasTag(SharedTag.MainObjective))
+            {
+                //change mainObjective position
+                Vector2 offset = new Vector3(-(planeRigidBody.position.x - entry.Key.transform.position.x),
+                -(planeRigidBody.position.z - entry.Key.transform.position.z)) * RadarZoomIn;
+                offset = offset.normalized * Mathf.Clamp(offset.magnitude, 0f, 190f);
+                entry.Value.transform.GetComponent<RectTransform>().anchoredPosition = planeIcon.transform.GetComponent<RectTransform>().anchoredPosition + offset;
+            }
+            else
+            {
+                //change position of other objects
+                Vector3 offset = new Vector3(-(planeRigidBody.position.x - entry.Key.transform.position.x),
                 -(planeRigidBody.position.z - entry.Key.transform.position.z),
                 0f) * RadarZoomIn;
-            entry.Value.transform.GetComponent<RectTransform>().anchoredPosition = offset;
+                entry.Value.transform.GetComponent<RectTransform>().anchoredPosition = offset;
+            }
 
             //update size of AirDefence area
             if (entry.Value.transform.childCount > 0)
             {
                 AirDefenceController adController = entry.Key.transform.gameObject.GetComponent<AirDefenceController>();
-                float hight_diif = transform.position.y - entry.Key.transform.position.y;
-                float range = adController.GetRange();
-                float height = adController.GetHeight();
-                float size = range * (1f - (Mathf.Abs(hight_diif) / height));
-                entry.Value.transform.GetChild(0).transform.GetComponent<RectTransform>().sizeDelta = new Vector2(size * RadarZoomIn, size * RadarZoomIn);
+                if (adController != null)
+                {
+                    float hightDiff = transform.position.y - entry.Key.transform.position.y;
+                    float range = adController.GetRange();
+                    float size = MathF.Sqrt((range * range) - (hightDiff * hightDiff));
+                    entry.Value.transform.GetChild(0).transform.GetComponent<RectTransform>().sizeDelta = new Vector2(size * RadarZoomIn, size * RadarZoomIn);
+                }
             }
         }
     }

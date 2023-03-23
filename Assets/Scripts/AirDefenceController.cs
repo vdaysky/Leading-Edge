@@ -73,9 +73,4 @@ public class AirDefenceController : MonoBehaviour
     {
         return detectionRange;
     }
-
-    public float GetHeight()
-    {
-        return detectionHeight;
-    }
 }
