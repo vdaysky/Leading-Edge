@@ -157,7 +157,7 @@ public class AirController : MonoBehaviour
     private CameraView _cameraView = CameraView.Back;
     private readonly Plane _plane = new();
     private GameState _state = GameState.Playing;
-    private Dictionary<GameObject, GameObject> _objetcsAndIcons = new Dictionary<GameObject, GameObject>();//private Dictionary<RaycastHit, GameObject> _objetcsAndIcons = new Dictionary<RaycastHit, GameObject>();
+    private Dictionary<GameObject, GameObject> _objetcsAndIcons = new Dictionary<GameObject, GameObject>();
 
     private const float MaxSpeed = 52f;
     private const float SteeringVSens = 26;
