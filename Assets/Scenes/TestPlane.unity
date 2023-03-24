@@ -946,6 +946,7 @@ RectTransform:
   - {fileID: 1191520494}
   - {fileID: 1766460606}
   - {fileID: 1990330875}
+  - {fileID: 1072348661}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1106,7 +1107,9 @@ MonoBehaviour:
   tailIcon: {fileID: 1933888343}
   engineIcon: {fileID: 1191520495}
   cockpitIcon: {fileID: 1766460607}
-  radarFrame: {fileID: 119337646}
+  planeIcon: {fileID: 1072348659}
+  enemyIconTexture: {fileID: 2800000, guid: 9261b9d1d4f90a844b07f928bf3575da, type: 3}
+  airDefenceIconTexture: {fileID: 2800000, guid: a6d9b3db3363c5445b222ee4c209b214, type: 3}
   inclineCanvas: {fileID: 1135030175}
   inclineTexture: {fileID: 2800000, guid: 0d7ba47b42f6d44b68527a51d5fb1c31, type: 3}
 --- !u!65 &722720429
