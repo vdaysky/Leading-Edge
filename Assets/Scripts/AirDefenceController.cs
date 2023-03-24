@@ -68,4 +68,9 @@ public class AirDefenceController : MonoBehaviour
         rocketControl.enabled = true;
         rocketControl.SetTarget(target);
     }
+
+    public float GetRange()
+    {
+        return detectionRange;
+    }
 }

@@ -9,5 +9,6 @@ namespace util
         AirDefence,
         Terrain,
         MainObjective,
+        PlayerRocket,
     }
 }
