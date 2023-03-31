@@ -150,6 +150,8 @@ public class AirController : MonoBehaviour
 
     [SerializeField] private Texture2D enemyIconTexture;
 
+    [SerializeField] private Texture2D targetIconTexture;
+
     [SerializeField] private Texture2D airDefenceIconTexture;
 
     
@@ -172,7 +174,7 @@ public class AirController : MonoBehaviour
     private const long FlaresCooldownMs = 10000;
     private const float EngineLiftFactor = 0.3f;
     private const float BrokenTailSlide = 1.2f;
-    private const float RadarZoomIn = 0.1f;
+    private const float RadarZoomIn = 0.4f;
 
 
 
@@ -335,7 +337,7 @@ public class AirController : MonoBehaviour
                         image.texture = enemyIconTexture;
                         image.color = new Color32(247, 43, 43, 255);
                         RectTransform imgTransform = imgObject.transform.GetComponent<RectTransform>();
-                        imgTransform.sizeDelta = new Vector2(100f, 100f);
+                        imgTransform.sizeDelta = new Vector2(200f, 200f);
                         imgTransform.localScale = new Vector3(1f, 1f, 1f);
 
                         _objetcsAndIcons.Add(radarObj, imgObject);
@@ -347,9 +349,9 @@ public class AirController : MonoBehaviour
                         imgObject.transform.SetParent(radar.transform);
                         RawImage image = imgObject.AddComponent<RawImage>();
                         image.texture = enemyIconTexture;
-                        image.color = new Color32(56, 166, 239, 255);
+                        image.color = new Color32(204, 255, 153, 255);
                         RectTransform imgTransform = imgObject.transform.GetComponent<RectTransform>();
-                        imgTransform.sizeDelta = new Vector2(100f, 100f);
+                        imgTransform.sizeDelta = new Vector2(200f, 200f);
                         imgTransform.localScale = new Vector3(1f, 1f, 1f);
 
                         _objetcsAndIcons.Add(radarObj, imgObject);
@@ -363,7 +365,7 @@ public class AirController : MonoBehaviour
                         image.texture = enemyIconTexture;
                         image.color = new Color32(247, 145, 43, 255);
                         RectTransform imgTransform = imgObject.transform.GetComponent<RectTransform>();
-                        imgTransform.sizeDelta = new Vector2(100f, 100f);
+                        imgTransform.sizeDelta = new Vector2(200f, 200f);
                         imgTransform.localScale = new Vector3(1f, 1f, 1f);
 
                         _objetcsAndIcons.Add(radarObj, imgObject);
@@ -374,7 +376,7 @@ public class AirController : MonoBehaviour
 
                         imgObject.transform.SetParent(canvas.transform);
                         RawImage imgTarget = imgObject.AddComponent<RawImage>();
-                        imgTarget.texture = enemyIconTexture;
+                        imgTarget.texture = targetIconTexture;
                         imgTarget.color = new Color32(232, 206, 36, 255);
                         RectTransform imgTransform = imgObject.transform.GetComponent<RectTransform>();
                         imgTransform.sizeDelta = new Vector2(30f, 30f);
@@ -401,7 +403,7 @@ public class AirController : MonoBehaviour
                         GameObject imgRadius = new GameObject("AirDefenceRadiusIcon");
                         imgRadius.transform.SetParent(imgObject.transform);
                         image = imgRadius.AddComponent<RawImage>();
-                        image.texture = enemyIconTexture;
+                        image.texture = targetIconTexture;
                         image.color = new Color32(247, 145, 43, 100);
                         imgTransform = imgRadius.transform.GetComponent<RectTransform>();
                         imgTransform.sizeDelta = new Vector2(1f, 1f);
@@ -439,6 +441,12 @@ public class AirController : MonoBehaviour
                 -(planeRigidBody.position.z - entry.Key.transform.position.z),
                 0f) * RadarZoomIn;
                 entry.Value.transform.GetComponent<RectTransform>().anchoredPosition = offset;
+            }
+
+            if(entry.Key.GetComponent<TagHolder>().HasTag(SharedTag.Rocket))
+            {
+
+                entry.Value.transform.localRotation = Quaternion.Euler(0, 0, -entry.Key.transform.rotation.eulerAngles.y);
             }
 
             //update size of AirDefence area
