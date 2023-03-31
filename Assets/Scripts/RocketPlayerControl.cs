@@ -18,8 +18,8 @@ public class RocketPlayerControl : MonoBehaviour
         var camTransform = cam.transform;
         
         camTransform.SetParent(transform);
-        camTransform.localPosition = new Vector3(0, 0, 0);
-        camTransform.localRotation = Quaternion.identity;
+        camTransform.localPosition = new Vector3(0, 0.5f, -0.35f);
+        camTransform.localRotation = Quaternion.Euler(20, 0, 0);
         camTransform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
         
         cam.rect = new Rect(0.75f, 0.75f, 0.25f, 0.25f);
