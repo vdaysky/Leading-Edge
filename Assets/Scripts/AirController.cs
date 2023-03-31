@@ -196,13 +196,13 @@ public class AirController : MonoBehaviour
             RectTransform trans = imgObject.AddComponent<RectTransform>();
             trans.transform.SetParent(canvas.transform); // setting parent
             
-            trans.localScale = Vector3.one;
+            trans.localScale = Vector3.one * 0.07f;
 
             trans.anchorMin = new Vector2(0.8f, 0);
             trans.anchorMax = new Vector2(0.8f, 0);
             
-            trans.anchoredPosition = new Vector2(i * -18 * 2, 96); // setting position, will be on center
-            trans.sizeDelta = new Vector2(18, 96); // custom size
+            trans.anchoredPosition = new Vector2(i * -15 * 4, 96); // setting position, will be on center
+            trans.sizeDelta = new Vector2(2048, 2048); // custom size
 
             RawImage image = imgObject.AddComponent<RawImage>();
             Texture2D tex = rocketIconTexture;
@@ -223,9 +223,10 @@ public class AirController : MonoBehaviour
 
             trans.anchorMin = new Vector2(0.5f, 0.5f);
             trans.anchorMax = new Vector2(0.5f, 0.5f);
-            
-            trans.sizeDelta = new Vector2(512, 64);
-            
+
+            trans.sizeDelta = new Vector2(2048, 2048);
+            trans.localScale = Vector3.one * 0.3f;
+
             trans.anchoredPosition = new Vector2(0, i * 100);
 
             RawImage image = imgObject.AddComponent<RawImage>();
@@ -239,10 +240,11 @@ public class AirController : MonoBehaviour
             TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
             text.text = (i * 10).ToString();
             text.fontSize = 18;
+            text.alignment = TextAlignmentOptions.Center;
             textTrans.transform.SetParent(imgObject.transform);
             
             // set text position
-            textTrans.localScale = Vector3.one;
+            textTrans.localScale = Vector3.one * 5f;
             textTrans.sizeDelta = new Vector2(100, 40);
             textTrans.anchorMin = new Vector2(0.5f, 0);
             textTrans.anchorMax = new Vector2(0.5f, 0);
@@ -330,7 +332,7 @@ public class AirController : MonoBehaviour
                         image.texture = enemyIconTexture;
                         image.color = new Color32(247, 43, 43, 255);
                         RectTransform imgTransform = imgObject.transform.GetComponent<RectTransform>();
-                        imgTransform.sizeDelta = new Vector2(30f, 30f);
+                        imgTransform.sizeDelta = new Vector2(100f, 100f);
                         imgTransform.localScale = new Vector3(1f, 1f, 1f);
 
                         _objetcsAndIcons.Add(radarObj, imgObject);
@@ -344,7 +346,7 @@ public class AirController : MonoBehaviour
                         image.texture = enemyIconTexture;
                         image.color = new Color32(56, 166, 239, 255);
                         RectTransform imgTransform = imgObject.transform.GetComponent<RectTransform>();
-                        imgTransform.sizeDelta = new Vector2(30f, 30f);
+                        imgTransform.sizeDelta = new Vector2(100f, 100f);
                         imgTransform.localScale = new Vector3(1f, 1f, 1f);
 
                         _objetcsAndIcons.Add(radarObj, imgObject);
@@ -358,7 +360,7 @@ public class AirController : MonoBehaviour
                         image.texture = enemyIconTexture;
                         image.color = new Color32(247, 145, 43, 255);
                         RectTransform imgTransform = imgObject.transform.GetComponent<RectTransform>();
-                        imgTransform.sizeDelta = new Vector2(30f, 30f);
+                        imgTransform.sizeDelta = new Vector2(100f, 100f);
                         imgTransform.localScale = new Vector3(1f, 1f, 1f);
 
                         _objetcsAndIcons.Add(radarObj, imgObject);
@@ -372,8 +374,8 @@ public class AirController : MonoBehaviour
                         imgTarget.texture = enemyIconTexture;
                         imgTarget.color = new Color32(232, 206, 36, 255);
                         RectTransform imgTransform = imgObject.transform.GetComponent<RectTransform>();
-                        imgTransform.sizeDelta = new Vector2(20f, 20f);
-                        imgTransform.localScale = new Vector3(2f, 2f, 2f);
+                        imgTransform.sizeDelta = new Vector2(30f, 30f);
+                        imgTransform.localScale = new Vector3(1f, 1f, 1f);
                         imgTransform.anchorMin = new Vector2(0f, 0f);
                         imgTransform.anchorMax = new Vector2(0f, 0f);
 
@@ -388,7 +390,7 @@ public class AirController : MonoBehaviour
                         image.texture = airDefenceIconTexture;
                         image.color = new Color32(247, 145, 43, 255);
                         RectTransform imgTransform = imgObject.transform.GetComponent<RectTransform>();
-                        imgTransform.sizeDelta = new Vector2(50f, 50f);
+                        imgTransform.sizeDelta = new Vector2(400f, 400f);
                         imgTransform.localScale = new Vector3(1f, 1f, 1f);
 
                         _objetcsAndIcons.Add(radarObj, imgObject);
@@ -425,7 +427,7 @@ public class AirController : MonoBehaviour
                 Vector2 offset = new Vector3(-(planeRigidBody.position.x - entry.Key.transform.position.x),
                 -(planeRigidBody.position.z - entry.Key.transform.position.z)) * RadarZoomIn;
                 offset = offset.normalized * Mathf.Clamp(offset.magnitude, 0f, 190f);
-                entry.Value.transform.GetComponent<RectTransform>().anchoredPosition = planeIcon.transform.GetComponent<RectTransform>().anchoredPosition + offset;
+                entry.Value.transform.GetComponent<RectTransform>().anchoredPosition = radar.transform.GetComponent<RectTransform>().anchoredPosition + offset;
             }
             else
             {
