@@ -3,32 +3,7 @@ guid: d48f17948d4722634a8f230dcde43cfc
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: F2A_P_a
-    second: {fileID: 2800000, guid: 41acd170a844a09e8a5f13349c0b41ef, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: F2A_P_d
-    second: {fileID: 2800000, guid: 57880b71d10b52ca48a83706b7ceabb3, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: F2A_P_n
-    second: {fileID: 2800000, guid: 9583ad8a700def9269e5325dd39a6193, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: F2A_P_s
-    second: {fileID: 2800000, guid: 6b647704758d6df9590fcc050f4ef1cd, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: F2A_pilot_d
-    second: {fileID: 2800000, guid: 33b47a620db3a9f0eaa25e836617efb1, type: 3}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
