@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using util;
 using UnityEngine.SceneManagement;
+using UnityEngine.TextCore.Text;
 
 internal class PlanePart
 {
@@ -155,6 +156,8 @@ public class AirController : MonoBehaviour
     [SerializeField] private Canvas inclineCanvas;
     
     [SerializeField] private Texture2D inclineTexture;
+
+    [SerializeField] private TMP_FontAsset font;
     
 
 
@@ -164,13 +167,12 @@ public class AirController : MonoBehaviour
     private Dictionary<GameObject, GameObject> _objetcsAndIcons = new Dictionary<GameObject, GameObject>();
 
     private const float MaxSpeed = 52f;
-    private const float SteeringVSens = 26;
-    private const float SteeringHSens = 52;
+    private const float SteeringVSens = 52;
+    private const float SteeringHSens = 70;
     private const long FlaresCooldownMs = 10000;
     private const float EngineLiftFactor = 0.3f;
     private const float BrokenTailSlide = 1.2f;
-    private const float RadarScanRadius = 400f;
-    private const float RadarZoomIn = 0.5f;
+    private const float RadarZoomIn = 0.1f;
 
 
 
@@ -238,6 +240,7 @@ public class AirController : MonoBehaviour
             GameObject textObject = new GameObject("InclineText#" + i);
             RectTransform textTrans = textObject.AddComponent<RectTransform>();
             TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
+            text.font = font;
             text.text = (i * 10).ToString();
             text.fontSize = 18;
             text.alignment = TextAlignmentOptions.Center;
@@ -305,11 +308,11 @@ public class AirController : MonoBehaviour
         altitudeText.text = planeRigidBody.transform.position.y.ToString("F0");
         
         // update plane part icons
-        leftWingIcon.color = new Color32((byte)(255 * _plane.LeftWing.Health), (byte)(255 * _plane.LeftWing.Health), (byte)(255 * _plane.LeftWing.Health), 255); 
-        rightWingIcon.color = new Color32((byte)(255 * _plane.RightWing.Health), (byte)(255 * _plane.RightWing.Health), (byte)(255 * _plane.RightWing.Health), 255);
-        tailIcon.color = new Color32((byte)(255 * _plane.Tail.Health), (byte)(255 * _plane.Tail.Health), (byte)(255 * _plane.Tail.Health), 255);
-        engineIcon.color = new Color32((byte)(255 * _plane.Engine.Health), (byte)(255 * _plane.Engine.Health), (byte)(255 * _plane.Engine.Health), 255);
-        cockpitIcon.color = new Color32((byte)(255 * _plane.Cockpit.Health), (byte)(255 * _plane.Cockpit.Health), (byte)(255 * _plane.Cockpit.Health), 255);
+        leftWingIcon.color = new Color32((byte)(255 * _plane.LeftWing.Breakage), (byte)(255 * _plane.LeftWing.Health), 50, 255); 
+        rightWingIcon.color = new Color32((byte)(255 * _plane.RightWing.Breakage), (byte)(255 * _plane.RightWing.Health), 50, 255);
+        tailIcon.color = new Color32((byte)(255 * _plane.Tail.Breakage), (byte)(255 * _plane.Tail.Health), 50, 255);
+        engineIcon.color = new Color32((byte)(255 * _plane.Engine.Breakage), (byte)(255 * _plane.Engine.Health), 50, 255);
+        cockpitIcon.color = new Color32((byte)(255 * _plane.Cockpit.Breakage), (byte)(255 * _plane.Cockpit.Health), 50, 255);
         
 
         // set plane rotation to yaw
@@ -645,7 +648,7 @@ public class AirController : MonoBehaviour
         
         rocketBase.SetMaxSpeed(70);
         rocketBase.SetSpeed(planeRigidBody.velocity.magnitude);
-        playerControl.SetSteeringSens(120);
+        playerControl.SetSteeringSens(180);
         
         playerControl.enabled = true;
         aiControl.enabled = false;
@@ -770,13 +773,13 @@ public class AirController : MonoBehaviour
         var planeRotation = planeTransform.rotation;
         
         var distance = 30;
-        const int height = 5;
+        const int height = 15;
         
-        var view = Quaternion.Euler(0, 0, 0);
+        var view = Quaternion.Euler(15, 0, 0);
         if (_cameraView == CameraView.Front)
         {
             distance = -distance;
-            view = Quaternion.Euler(0, 180, 0);
+            view = Quaternion.Euler(15, 180, 0);
         }
 
         mainCamera.transform.position = planeTransform.position - planeTransform.forward * distance + planeTransform.up * height;
