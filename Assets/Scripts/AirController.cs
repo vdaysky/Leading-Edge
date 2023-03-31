@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using util;
 using UnityEngine.SceneManagement;
+using UnityEngine.TextCore.Text;
 
 internal class PlanePart
 {
@@ -155,6 +156,8 @@ public class AirController : MonoBehaviour
     [SerializeField] private Canvas inclineCanvas;
     
     [SerializeField] private Texture2D inclineTexture;
+
+    [SerializeField] private TMP_FontAsset font;
     
 
 
@@ -164,13 +167,12 @@ public class AirController : MonoBehaviour
     private Dictionary<GameObject, GameObject> _objetcsAndIcons = new Dictionary<GameObject, GameObject>();
 
     private const float MaxSpeed = 52f;
-    private const float SteeringVSens = 26;
-    private const float SteeringHSens = 52;
+    private const float SteeringVSens = 52;
+    private const float SteeringHSens = 70;
     private const long FlaresCooldownMs = 10000;
     private const float EngineLiftFactor = 0.3f;
     private const float BrokenTailSlide = 1.2f;
-    private const float RadarScanRadius = 400f;
-    private const float RadarZoomIn = 0.5f;
+    private const float RadarZoomIn = 0.1f;
 
 
 
@@ -237,6 +239,7 @@ public class AirController : MonoBehaviour
             GameObject textObject = new GameObject("InclineText#" + i);
             RectTransform textTrans = textObject.AddComponent<RectTransform>();
             TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
+            text.font = font;
             text.text = (i * 10).ToString();
             text.fontSize = 18;
             textTrans.transform.SetParent(imgObject.transform);
@@ -643,7 +646,7 @@ public class AirController : MonoBehaviour
         
         rocketBase.SetMaxSpeed(70);
         rocketBase.SetSpeed(planeRigidBody.velocity.magnitude);
-        playerControl.SetSteeringSens(120);
+        playerControl.SetSteeringSens(180);
         
         playerControl.enabled = true;
         aiControl.enabled = false;
