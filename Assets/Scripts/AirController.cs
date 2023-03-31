@@ -771,13 +771,13 @@ public class AirController : MonoBehaviour
         var planeRotation = planeTransform.rotation;
         
         var distance = 30;
-        const int height = 5;
+        const int height = 15;
         
-        var view = Quaternion.Euler(0, 0, 0);
+        var view = Quaternion.Euler(15, 0, 0);
         if (_cameraView == CameraView.Front)
         {
             distance = -distance;
-            view = Quaternion.Euler(0, 180, 0);
+            view = Quaternion.Euler(15, 180, 0);
         }
 
         mainCamera.transform.position = planeTransform.position - planeTransform.forward * distance + planeTransform.up * height;
