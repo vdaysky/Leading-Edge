@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Den.Tools", "Den.Tools.csproj", "{e890c04d-19b0-49f6-c52f-d3ff2f661823}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapMagic.Editor", "MapMagic.Editor.csproj", "{346f1311-984a-47ab-22b6-a25374563740}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{e6bdc332-25e1-2831-82c1-25d0441455a3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapMagic", "MapMagic.csproj", "{0f623940-c983-722f-8c6c-c58183c64a25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Den.Tools.Editor", "Den.Tools.Editor.csproj", "{9ede8bc5-d4c6-73d9-1a74-f15bc0639179}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapMagic.Settings", "MapMagic.Settings.csproj", "{2c6d2795-3fa4-3a2d-79a7-1e1a322816d8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "Assembly-CSharp-Editor.csproj", "{0910a9e8-8671-82a3-4fe4-3c21ba335f00}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapMagic.MicroSplat", "MapMagic.MicroSplat.csproj", "{d460c4c1-9623-9373-cc63-5dc0a53df060}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapMagic.VegetationStudioPro", "MapMagic.VegetationStudioPro.csproj", "{e4c4a85f-45aa-88b8-23f9-6c1140d492ff}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapMagic.MicroSplat.Editor", "MapMagic.MicroSplat.Editor.csproj", "{368de50b-3b36-5ca2-13e6-65d8cf29e756}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapMagic.VegetationStudioPro.Editor", "MapMagic.VegetationStudioPro.Editor.csproj", "{cbb090db-dde4-5208-5020-a819d9989678}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{e890c04d-19b0-49f6-c52f-d3ff2f661823}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{e890c04d-19b0-49f6-c52f-d3ff2f661823}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{346f1311-984a-47ab-22b6-a25374563740}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{346f1311-984a-47ab-22b6-a25374563740}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{e6bdc332-25e1-2831-82c1-25d0441455a3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{e6bdc332-25e1-2831-82c1-25d0441455a3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0f623940-c983-722f-8c6c-c58183c64a25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0f623940-c983-722f-8c6c-c58183c64a25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9ede8bc5-d4c6-73d9-1a74-f15bc0639179}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9ede8bc5-d4c6-73d9-1a74-f15bc0639179}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2c6d2795-3fa4-3a2d-79a7-1e1a322816d8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2c6d2795-3fa4-3a2d-79a7-1e1a322816d8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0910a9e8-8671-82a3-4fe4-3c21ba335f00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0910a9e8-8671-82a3-4fe4-3c21ba335f00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{d460c4c1-9623-9373-cc63-5dc0a53df060}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{d460c4c1-9623-9373-cc63-5dc0a53df060}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{e4c4a85f-45aa-88b8-23f9-6c1140d492ff}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{e4c4a85f-45aa-88b8-23f9-6c1140d492ff}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{368de50b-3b36-5ca2-13e6-65d8cf29e756}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{368de50b-3b36-5ca2-13e6-65d8cf29e756}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{cbb090db-dde4-5208-5020-a819d9989678}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{cbb090db-dde4-5208-5020-a819d9989678}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
